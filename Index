@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFC NORTH — league insights</title>
+<style>
+  :root{
+    --field:#060809; --field2:#0d1013; --chalk:#f4f6f5; --chalk-dim:#8b968f;
+    --hash:#10151a; --gold:#39ff8e; --gold-dim:#1f9e5c; --red:#ff4d5e; --red-dim:#c2333f;
+    --card:#101418; --line:rgba(255,255,255,0.08); --ink:#f4f6f5; --ink-dim:#8b968f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--field); color:var(--chalk); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif;}
+  .mono{font-family:ui-monospace,'SF Mono','Courier New',monospace;}
+  .wrap{max-width:900px; margin:0 auto; padding:0 16px 60px;}
+  header.hero{background:radial-gradient(120% 140% at 50% 0%, #0f1b14 0%, var(--field) 60%); border-bottom:1px solid var(--line); padding:40px 16px 26px; text-align:center; position:relative;}
+  header.hero::after{content:''; position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); width:120px; height:3px; background:var(--gold); border-radius:3px; box-shadow:0 0 16px 2px var(--gold);}
+  .eyebrow{font-family:ui-monospace,'SF Mono',monospace; font-size:12px; letter-spacing:.22em; color:var(--gold); text-transform:uppercase; font-weight:600;}
+  h1.title{font-size:42px; margin:8px 0 4px; letter-spacing:-.01em; text-transform:uppercase; color:var(--chalk); font-weight:800;}
+  .sub{color:var(--chalk-dim); font-size:13px;}
+  nav.tabs{display:flex; gap:4px; margin:24px 0 20px; background:var(--field2); padding:4px; border-radius:14px; overflow-x:auto; border:1px solid var(--line);}
+  nav.tabs button{flex:1; min-width:120px; background:transparent; color:var(--chalk-dim); border:none; padding:11px 10px; font-size:13px; font-weight:600; letter-spacing:.02em; border-radius:10px; cursor:pointer; transition:background .15s, color .15s;}
+  nav.tabs button.active{background:var(--gold); color:#04170c; font-weight:700;}
+  section.view{display:none;}
+  section.view.active{display:block;}
+  .card{background:var(--card); color:var(--ink); border-radius:16px; padding:20px 22px; margin-bottom:14px; border:1px solid var(--line);}
+  .card h2{margin:0 0 4px; font-size:18px; letter-spacing:-.01em; font-weight:700;}
+  .card .desc{font-size:12.5px; color:var(--ink-dim); margin-bottom:14px;}
+  .rank-row{display:flex; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .rank-row:last-child{border-bottom:none;}
+  .rank-num{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; font-size:19px; width:28px; color:var(--gold-dim);}
+  .rank-num.top{color:var(--gold);}
+  .rank-team{flex:1;}
+  .rank-team .name{font-weight:700; font-size:15px;}
+  .rank-team .owner{font-size:11.5px; color:var(--ink-dim);}
+  .rank-stats{text-align:right; font-family:ui-monospace,'SF Mono',monospace; font-size:12px; color:var(--ink-dim);}
+  .rank-stats .pts{font-size:16px; color:var(--ink); font-weight:700;}
+  .bar-track{height:4px; background:var(--line); border-radius:4px; margin-top:7px; width:100%;}
+  .bar-fill{height:4px; background:var(--gold); border-radius:4px;}
+  .tx-row{display:flex; align-items:baseline; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .tx-row:last-child{border-bottom:none;}
+  .tx-tag{font-family:ui-monospace,'SF Mono',monospace; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; flex-shrink:0; font-weight:700; letter-spacing:.03em;}
+  .tx-tag.add{background:rgba(57,255,142,0.14); color:var(--gold);}
+  .tx-tag.drop{background:rgba(255,77,94,0.14); color:var(--red);}
+  .tx-tag.trade{background:rgba(139,150,255,0.16); color:#a3adff;}
+  .week-select{display:flex; align-items:center; gap:10px; margin-bottom:16px; font-size:13px; color:var(--chalk-dim);}
+  select, textarea, input{font-family:ui-monospace,'SF Mono',monospace; background:var(--field2); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:9px 10px;}
+  select{padding:7px 12px;}
+  .matchup{margin-bottom:16px;}
+  .matchup-teams{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .mt-side{flex:1;}
+  .mt-side.right{text-align:right;}
+  .mt-name{font-weight:700; font-size:16px;}
+  .mt-pts{font-family:ui-monospace,'SF Mono',monospace; font-size:26px; font-weight:700;}
+  .mt-vs{font-family:ui-monospace,'SF Mono',monospace; color:var(--ink-dim); font-size:12px; padding:0 14px;}
+  .mt-win .mt-name, .mt-win .mt-pts{color:var(--gold);}
+  .players{display:grid; grid-template-columns:1fr 1fr; gap:0 20px; font-size:12px; font-family:ui-monospace,'SF Mono',monospace; margin-top:10px; border-top:1px solid var(--line); padding-top:10px;}
+  .prow{display:flex; justify-content:space-between; padding:3px 0; color:var(--ink-dim);}
+  .prow.starter-top{color:var(--gold); font-weight:700;}
+  .empty{font-size:13px; color:var(--chalk-dim); text-align:center; padding:40px 20px;}
+  .empty i{display:block; font-size:26px; margin-bottom:10px; color:var(--gold-dim);}
+  details.updater{background:var(--field2); border-radius:16px; padding:18px 20px; margin-top:30px; border:1px solid var(--line);}
+  details.updater summary{cursor:pointer; font-size:12.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold);}
+  .updater-field{margin-top:14px;}
+  .updater-field label{display:block; font-size:11.5px; color:var(--chalk-dim); margin-bottom:5px; font-weight:600;}
+  .updater-field label .hint{color:var(--gold-dim); font-weight:400;}
+  .updater-field textarea{width:100%; height:70px; font-size:11px; resize:vertical;}
+  .updater-field input[type=number]{width:80px;}
+  .updater-actions{display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap;}
+  button.save{background:var(--gold); color:#04170c; border:none; padding:10px 20px; font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; border-radius:10px; font-weight:700;}
+  button.save:active{transform:scale(0.98);}
+  .status{font-size:11.5px; color:var(--chalk-dim);}
+  .status.ok{color:var(--gold);}
+  .status.err{color:var(--red);}
+  ::placeholder{color:#54606b;}
+  .hist-week{margin-bottom:18px;}
+  .hist-week-label{font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:6px;}
+  .hist-row{display:flex; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .hist-row:last-child{border-bottom:none;}
+  .hist-side{flex:1;}
+  .hist-side.right{text-align:right;}
+  .hist-side.winner{font-weight:700; color:var(--gold);}
+  .hist-pts{font-family:ui-monospace,'SF Mono',monospace; width:50px; text-align:center; color:var(--ink-dim); font-size:12px;}
+  .at-row{display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .at-row:last-child{border-bottom:none;}
+  .at-team{flex:1; font-weight:700;}
+  .at-record{font-family:ui-monospace,'SF Mono',monospace; color:var(--ink-dim); font-size:12px; width:80px; text-align:right;}
+  .at-pts{font-family:ui-monospace,'SF Mono',monospace; color:var(--ink-dim); font-size:12px; width:90px; text-align:right;}
+  .champ-row{display:flex; align-items:baseline; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .champ-row:last-child{border-bottom:none;}
+  .champ-season{font-family:ui-monospace,'SF Mono',monospace; color:var(--gold-dim); width:50px; flex-shrink:0; font-weight:700;}
+  .champ-name{font-weight:700; flex:1;}
+  .champ-runner{color:var(--ink-dim); font-size:12px;}
+  .hi-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .hi-row:last-child{border-bottom:none;}
+  .hi-rank{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; color:var(--gold-dim); width:20px;}
+  .hi-main{flex:1;}
+  .hi-main .name{font-weight:700;}
+  .hi-main .sub{font-size:11px; color:var(--ink-dim);}
+  .hi-score{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; font-size:15px; color:var(--gold);}
+  .rank-team .blurb{font-size:11px; color:var(--ink-dim); margin-top:2px;}
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  @media (max-width:600px){
+    header.hero{padding:30px 14px 22px;}
+    h1.title{font-size:32px;}
+    .eyebrow{font-size:10px; letter-spacing:.16em;}
+    nav.tabs button{min-width:0; padding:9px 4px; font-size:10.5px; letter-spacing:0;}
+    .card{padding:16px 14px;}
+    .mt-pts{font-size:21px;}
+    .players{grid-template-columns:1fr; gap:10px 0;}
+    table.matrix{font-size:11px;}
+    .updater-actions{flex-direction:column; align-items:stretch;}
+    button.save{width:100%;}
+  }
+  table.matrix{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.matrix th{text-align:center; font-weight:700; color:var(--chalk-dim); font-size:11px; padding:6px 4px; border-bottom:1px solid var(--line);}
+  table.matrix th:first-child{text-align:left;}
+  table.matrix td{padding:8px 4px; text-align:center; border-bottom:1px solid var(--line);}
+  table.matrix td:first-child{text-align:left; font-weight:700;}
+  table.matrix .rank-pill{display:inline-block; min-width:22px; padding:2px 6px; border-radius:6px; font-family:ui-monospace,'SF Mono',monospace; font-weight:700;}
+  table.matrix .rank-1{background:rgba(57,255,142,0.16); color:var(--gold);}
+  table.matrix .rank-last{background:rgba(255,77,94,0.14); color:var(--red);}
+  .bracket-round{margin-bottom:16px;}
+  .bracket-round-label{font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:8px;}
+  .bracket-matchup{background:var(--field2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px;}
+  .bracket-side{display:flex; justify-content:space-between; align-items:center; padding:3px 0; font-size:13px;}
+  .bracket-side.win{font-weight:700; color:var(--gold);}
+  .bracket-score{font-family:ui-monospace,'SF Mono',monospace; font-size:13px;}
+  .rule-row{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .rule-row:last-child{border-bottom:none;}
+  .rule-dot{width:6px; height:6px; border-radius:50%; background:var(--gold); margin-top:6px; flex-shrink:0;}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">Fantasy football insight desk</div>
+  <h1 class="title">NFC North</h1>
+  <div class="sub">2026 season · updated weekly by the commissioner</div>
+</header>
+<div class="wrap">
+  <nav class="tabs">
+    <button data-view="rankings" class="active">Power rankings</button>
+    <button data-view="waivers">Waiver wire</button>
+    <button data-view="matchups">Matchup review</button>
+    <button data-view="rules">Rules</button>
+    <button data-view="history">History</button>
+  </nav>
+
+  <section class="view active" id="view-rankings">
+    <div class="card">
+      <h2>Preseason power rankings</h2>
+      <div class="desc">Where the league stands before week 1 kicks off</div>
+      <div id="preseason-body"></div>
+    </div>
+    <div class="card">
+      <h2>Power rankings</h2>
+      <div class="desc">Ranked by total points scored · record shown alongside</div>
+      <div id="rankings-body"><div class="empty"><i class="ti ti-trophy"></i>No roster data yet. Open "Update data" below and paste it in.</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-waivers">
+    <div class="card">
+      <div class="week-select">
+        <label for="waiver-week-select">Week</label>
+        <select id="waiver-week-select"></select>
+      </div>
+      <h2>Waiver wire and trades</h2>
+      <div class="desc">Adds, drops, and trades for the selected week</div>
+      <div id="waivers-body"><div class="empty"><i class="ti ti-arrows-exchange"></i>No transaction data yet for this week.</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-matchups">
+    <div class="card">
+      <div class="week-select">
+        <label for="matchup-week-select">Week</label>
+        <select id="matchup-week-select"></select>
+      </div>
+      <h2>Matchup review</h2>
+      <div class="desc">Real player performance, head to head</div>
+      <div id="matchups-body"><div class="empty"><i class="ti ti-football"></i>No matchup data yet for this week.</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-rules">
+    <div class="card">
+      <h2>Roster and lineup</h2>
+      <div class="desc">10 starters, 13 bench, 8-team league</div>
+      <table class="matrix"><tbody>
+        <tr><td>Starting lineup</td><td style="text-align:right;">QB, 2 RB, 3 WR, TE, 2 FLEX, DEF</td></tr>
+        <tr><td>Bench</td><td style="text-align:right;">13 spots</td></tr>
+        <tr><td>IR / reserve</td><td style="text-align:right;">2 spots</td></tr>
+        <tr><td>Taxi squad</td><td style="text-align:right;">3 spots, 1 year eligibility, vets not allowed</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Scoring</h2>
+      <div class="desc">Full PPR, 6pt passing TDs not used &mdash; standard 4pt passing</div>
+      <table class="matrix"><tbody>
+        <tr><td>Reception</td><td style="text-align:right;">1.0 pt (full PPR)</td></tr>
+        <tr><td>Passing yards / TD</td><td style="text-align:right;">0.04 pt per yd &middot; 4 pts</td></tr>
+        <tr><td>Rushing or receiving yards / TD</td><td style="text-align:right;">0.1 pt per yd &middot; 6 pts</td></tr>
+        <tr><td>Interception thrown / fumble lost</td><td style="text-align:right;">&minus;1.0 / &minus;2.0 pts</td></tr>
+        <tr><td>Defensive INT / sack / TD</td><td style="text-align:right;">2.5 / 1.5 / 6 pts</td></tr>
+        <tr><td>Points allowed 0</td><td style="text-align:right;">15 pts &middot; scales down to &minus;5 at 35+</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Season format</h2>
+      <div class="desc">14-week regular season, 4-team playoff bracket</div>
+      <table class="matrix"><tbody>
+        <tr><td>Regular season</td><td style="text-align:right;">Weeks 1&ndash;14</td></tr>
+        <tr><td>Playoffs</td><td style="text-align:right;">Weeks 15&ndash;17 &middot; top 4 teams</td></tr>
+        <tr><td>Trade deadline</td><td style="text-align:right;">Week 11</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Waivers</h2>
+      <div class="desc">FAAB bidding, cleared after games</div>
+      <table class="matrix"><tbody>
+        <tr><td>Waiver type</td><td style="text-align:right;">FAAB (blind bid)</td></tr>
+        <tr><td>Season budget</td><td style="text-align:right;">$100</td></tr>
+        <tr><td>Clears</td><td style="text-align:right;">3am Wednesday, after games</td></tr>
+        <tr><td>Ties broken by</td><td style="text-align:right;">Waiver priority</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Trades and tiebreakers</h2>
+      <div class="desc">How disputes and close standings get settled</div>
+      <table class="matrix"><tbody>
+        <tr><td>Trade review</td><td style="text-align:right;">League vote &middot; 5 votes to veto</td></tr>
+        <tr><td>Trade deadline</td><td style="text-align:right;">Week 11</td></tr>
+        <tr><td>Regular season tiebreaker</td><td style="text-align:right;">Points for, then points against</td></tr>
+        <tr><td>Playoff tiebreaker</td><td style="text-align:right;">Higher seed advances</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Payouts and dues</h2>
+      <div class="desc">$35 per person buy-in</div>
+      <table class="matrix"><tbody>
+        <tr><td>Champion</td><td style="text-align:right;">$200</td></tr>
+        <tr><td>Runner-up</td><td style="text-align:right;">$50</td></tr>
+        <tr><td>Regular season winner</td><td style="text-align:right;">$30</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>Commissioner authority</h2>
+      <div class="desc">Dispute resolution</div>
+      <table class="matrix"><tbody>
+        <tr><td colspan="2" style="text-align:left;">The commissioner has final authority to interpret rules. Disputes should be raised privately first. League votes may be used at the commissioner's discretion. All rule changes are voted on for the next season.</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>House rules</h2>
+      <div class="desc">Anything beyond the Sleeper settings &mdash; punishments, side bets, custom tiebreakers</div>
+      <div id="houserules-body"><div class="empty"><i class="ti ti-gavel"></i>No house rules added yet.</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-history">
+    <div class="card">
+      <h2>All-time records</h2>
+      <div class="desc">Career win-loss and points, across seasons</div>
+      <div id="alltime-body"><div class="empty"><i class="ti ti-medal"></i>No all-time records saved yet.</div></div>
+    </div>
+    <div class="card">
+      <h2>Past champions</h2>
+      <div class="desc">League winners by season</div>
+      <div id="champions-body"><div class="empty"><i class="ti ti-crown"></i>No champions saved yet.</div></div>
+    </div>
+    <div class="card">
+      <h2>Regular season standings</h2>
+      <div class="desc">Final rank by team, year over year</div>
+      <div id="standings-matrix-body"><div class="empty"><i class="ti ti-table"></i>No year-by-year standings saved yet.</div></div>
+    </div>
+    <div class="card">
+      <div class="week-select">
+        <label for="playoff-year-select">Season</label>
+        <select id="playoff-year-select"></select>
+      </div>
+      <h2>Playoff bracket</h2>
+      <div class="desc">Path to the title, by round</div>
+      <div id="playoff-bracket-body"><div class="empty"><i class="ti ti-trophy"></i>No playoff bracket saved yet.</div></div>
+    </div>
+    <div class="card">
+      <h2>Weekly high scores</h2>
+      <div class="desc">Best single-week totals, all time</div>
+      <div id="weeklyhigh-body"><div class="empty"><i class="ti ti-flame"></i>No weekly highs saved yet.</div></div>
+    </div>
+    <div class="card">
+      <h2>Player high scores</h2>
+      <div class="desc">Best single-player performances, all time</div>
+      <div id="playerhigh-body"><div class="empty"><i class="ti ti-star"></i>No player highs saved yet.</div></div>
+    </div>
+  </section>
+
+  <div class="card" style="margin-top:30px; border-style:dashed;">
+    <h2>Data source</h2>
+    <div class="desc" style="margin-bottom:0;">
+      Live scores, rosters, and transactions refresh automatically from Sleeper via a scheduled GitHub Action.
+      History, rules, and rankings are edited directly in <code>data.json</code> in the repo.
+    </div>
+  </div>
+</div>
+<script>
+let DATA = null;
+
+function teamLabel(user){
+  if(!user) return {name:'Unknown team', owner:''};
+  const name = (user.metadata && user.metadata.team_name) ? user.metadata.team_name.trim() : user.display_name;
+  return {name: name, owner: user.display_name};
+}
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+  });
+});
+
+async function loadData(){
+  try{
+    const res = await fetch('data.json?t=' + Date.now());
+    DATA = await res.json();
+  }catch(e){
+    DATA = {users:[],rosters:[],players:{},matchups:{},transactions:{},alltime:[],champions:[],weekly_highs:[],player_highs:[],standings_by_year:[],playoffs:[],preseason:[],house_rules:[]};
+    document.getElementById('wrap-error') || document.querySelector('.wrap').insertAdjacentHTML('afterbegin', '<div class="empty" id="wrap-error" style="padding:20px;">Could not load data.json &mdash; check it exists at the same path as this page.</div>');
+  }
+}
+
+function pname(id){
+  const p = DATA.players && DATA.players[id];
+  return p ? (p.full_name || id) : ('Player '+id);
+}
+
+function userMap(){ const m={}; (DATA.users||[]).forEach(u=>m[u.user_id]=u); return m; }
+function rosterOwnerMap(){ const m={}; (DATA.rosters||[]).forEach(r=>m[r.roster_id]=r.owner_id); return m; }
+
+function loadPreseason(){
+  const body = document.getElementById('preseason-body');
+  const rows = DATA.preseason || [];
+  if(!rows.length){ body.innerHTML = ''; return; }
+  body.innerHTML = rows.map((r,i)=>`
+    <div class="rank-row">
+      <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+      <div class="rank-team">
+        <div class="name">${r.team}</div>
+        ${r.blurb ? `<div class="blurb">${r.blurb}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadRankings(){
+  const body = document.getElementById('rankings-body');
+  const rosters = DATA.rosters || [];
+  if(!rosters.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No roster data yet &mdash; will populate once the season starts.</div>'; return; }
+  const uMap = userMap();
+  const rows = rosters.map(r=>{
+    const u = uMap[r.owner_id];
+    const label = teamLabel(u);
+    const w = (r.settings && r.settings.wins) || 0;
+    const l = (r.settings && r.settings.losses) || 0;
+    const t = (r.settings && r.settings.ties) || 0;
+    const fpts = ((r.settings && r.settings.fpts) || 0) + ((r.settings && r.settings.fpts_decimal || 0)/100);
+    const fptsAgainst = ((r.settings && r.settings.fpts_against) || 0) + ((r.settings && r.settings.fpts_against_decimal || 0)/100);
+    return {label, w, l, t, fpts, fptsAgainst};
+  }).sort((a,b)=> b.fpts - a.fpts);
+  const maxPts = Math.max(...rows.map(r=>r.fpts), 1);
+  body.innerHTML = rows.map((r,i)=>`
+    <div class="rank-row">
+      <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+      <div class="rank-team">
+        <div class="name">${r.label.name}</div>
+        <div class="owner">${r.label.owner}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(r.fpts/maxPts*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="rank-stats">
+        <div class="pts">${r.fpts.toFixed(1)}</div>
+        <div>${r.w}-${r.l}${r.t?('-'+r.t):''} · vs ${r.fptsAgainst.toFixed(1)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function availableWeeks(){
+  return Object.keys(DATA.matchups || {}).map(Number).sort((a,b)=>a-b);
+}
+
+function populateWeekSelects(){
+  const weeks = availableWeeks();
+  ['waiver-week-select','matchup-week-select'].forEach(id=>{
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    sel.innerHTML = weeks.length ? weeks.map(w=>`<option value="${w}">Week ${w}</option>`).join('') : '<option value="">No weeks yet</option>';
+    if(weeks.includes(Number(prev))) sel.value = prev;
+  });
+}
+
+function loadWaivers(week){
+  const body = document.getElementById('waivers-body');
+  const txs = (DATA.transactions && DATA.transactions[week]) || [];
+  if(!week || !txs.length){ body.innerHTML = '<div class="empty"><i class="ti ti-arrows-exchange"></i>No transaction data yet for this week.</div>'; return; }
+  const uMap = userMap();
+  const rOwner = rosterOwnerMap();
+  function ownerNameByRoster(rid){ const u = uMap[rOwner[rid]]; return teamLabel(u).name; }
+  const rows = [];
+  txs.filter(t=>t.status==='complete').forEach(t=>{
+    if(t.type==='trade'){
+      const teams = (t.roster_ids||[]).map(ownerNameByRoster).join(' \u2194 ');
+      rows.push(`<div class="tx-row"><span class="tx-tag trade">Trade</span><span>${teams}</span></div>`);
+    } else {
+      const rid = (t.roster_ids && t.roster_ids[0]);
+      const owner = ownerNameByRoster(rid);
+      if(t.adds){ Object.keys(t.adds).forEach(pid=>{
+        rows.push(`<div class="tx-row"><span class="tx-tag add">Add</span><span>${owner} added ${pname(pid)}</span></div>`);
+      });}
+      if(t.drops){ Object.keys(t.drops).forEach(pid=>{
+        rows.push(`<div class="tx-row"><span class="tx-tag drop">Drop</span><span>${owner} dropped ${pname(pid)}</span></div>`);
+      });}
+    }
+  });
+  body.innerHTML = rows.length ? rows.join('') : '<div class="empty"><i class="ti ti-arrows-exchange"></i>No completed transactions for this week.</div>';
+}
+
+function loadMatchups(week){
+  const body = document.getElementById('matchups-body');
+  const mus = (DATA.matchups && DATA.matchups[week]) || [];
+  if(!week || !mus.length){ body.innerHTML = '<div class="empty"><i class="ti ti-football"></i>No matchup data yet for this week.</div>'; return; }
+  const uMap = userMap();
+  const rOwner = rosterOwnerMap();
+  const byMatchup = {};
+  mus.forEach(m=>{ (byMatchup[m.matchup_id] = byMatchup[m.matchup_id]||[]).push(m); });
+  let html = '';
+  Object.values(byMatchup).forEach(pair=>{
+    if(pair.length < 2) return;
+    const [a,b] = pair;
+    const nameA = teamLabel(uMap[rOwner[a.roster_id]]).name;
+    const nameB = teamLabel(uMap[rOwner[b.roster_id]]).name;
+    const winA = a.points > b.points;
+    function starterRows(m){
+      const starters = m.starters || [];
+      const pts = m.players_points || {};
+      const maxPts = Math.max(...starters.map(id=>pts[id]||0), 0);
+      return starters.map(id=>{
+        const p = pts[id]||0;
+        return `<div class="prow ${p===maxPts && maxPts>0 ? 'starter-top':''}"><span>${pname(id)}</span><span>${p.toFixed(1)}</span></div>`;
+      }).join('');
+    }
+    html += `
+      <div class="matchup">
+        <div class="matchup-teams">
+          <div class="mt-side ${winA?'mt-win':''}"><div class="mt-name">${nameA}</div><div class="mt-pts">${a.points.toFixed(1)}</div></div>
+          <div class="mt-vs">VS</div>
+          <div class="mt-side right ${!winA?'mt-win':''}"><div class="mt-name">${nameB}</div><div class="mt-pts">${b.points.toFixed(1)}</div></div>
+        </div>
+        <div class="players">
+          <div>${starterRows(a)}</div>
+          <div>${starterRows(b)}</div>
+        </div>
+      </div>
+    `;
+  });
+  body.innerHTML = html || '<div class="empty"><i class="ti ti-football"></i>No matchup data yet for this week.</div>';
+}
+
+function loadAllTime(){
+  const body = document.getElementById('alltime-body');
+  const records = DATA.alltime || [];
+  if(!records.length){ body.innerHTML = '<div class="empty"><i class="ti ti-medal"></i>No all-time records saved yet.</div>'; return; }
+  const sorted = [...records].sort((a,b)=> (b.wins||0)-(a.wins||0));
+  body.innerHTML = sorted.map(r=>`
+    <div class="at-row">
+      <div class="at-team">${r.team}</div>
+      <div class="at-record">${r.wins||0}-${r.losses||0}${r.ties?('-'+r.ties):''}</div>
+      <div class="at-pts">${r.points_for!=null ? Number(r.points_for).toFixed(1)+' pts' : ''}</div>
+    </div>
+  `).join('');
+}
+
+function loadChampions(){
+  const body = document.getElementById('champions-body');
+  const champs = DATA.champions || [];
+  if(!champs.length){ body.innerHTML = '<div class="empty"><i class="ti ti-crown"></i>No champions saved yet.</div>'; return; }
+  const sorted = [...champs].sort((a,b)=> String(b.season).localeCompare(String(a.season)));
+  body.innerHTML = sorted.map(c=>`
+    <div class="champ-row">
+      <div class="champ-season">${c.season}</div>
+      <div class="champ-name">${c.champion}</div>
+      <div class="champ-runner">${c.runner_up ? 'over '+c.runner_up : ''}</div>
+    </div>
+  `).join('');
+}
+
+function loadWeeklyHigh(){
+  const body = document.getElementById('weeklyhigh-body');
+  const rows = DATA.weekly_highs || [];
+  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-flame"></i>No weekly highs saved yet.</div>'; return; }
+  const sorted = [...rows].sort((a,b)=> b.score - a.score);
+  body.innerHTML = sorted.map((r,i)=>`
+    <div class="hi-row">
+      <div class="hi-rank">${i+1}</div>
+      <div class="hi-main"><div class="name">${r.team}</div><div class="sub">${r.season} · week ${r.week}</div></div>
+      <div class="hi-score">${Number(r.score).toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+function loadPlayerHigh(){
+  const body = document.getElementById('playerhigh-body');
+  const rows = DATA.player_highs || [];
+  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-star"></i>No player highs saved yet.</div>'; return; }
+  const sorted = [...rows].sort((a,b)=> b.score - a.score);
+  body.innerHTML = sorted.map((r,i)=>`
+    <div class="hi-row">
+      <div class="hi-rank">${i+1}</div>
+      <div class="hi-main"><div class="name">${r.player} <span style="color:var(--ink-dim); font-weight:400;">${r.pos||''} ${r.nfl_team?('- '+r.nfl_team):''}</span></div><div class="sub">${r.season} · week ${r.week} · ${r.team||''}</div></div>
+      <div class="hi-score">${Number(r.score).toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+function loadStandingsMatrix(){
+  const body = document.getElementById('standings-matrix-body');
+  const data = DATA.standings_by_year || [];
+  if(!data.length){ body.innerHTML = '<div class="empty"><i class="ti ti-table"></i>No year-by-year standings saved yet.</div>'; return; }
+  const seasons = data.map(d=>d.season).sort();
+  const teams = [];
+  data.forEach(d=> (d.standings||[]).forEach(s=>{ if(!teams.includes(s.team)) teams.push(s.team); }));
+  const bySeasonTeam = {};
+  data.forEach(d=>{
+    bySeasonTeam[d.season] = {};
+    (d.standings||[]).forEach(s=>{ bySeasonTeam[d.season][s.team] = s; });
+  });
+  teams.sort((a,b)=>{
+    const lastSeason = seasons[seasons.length-1];
+    const ra = (bySeasonTeam[lastSeason][a]||{}).rank || 99;
+    const rb = (bySeasonTeam[lastSeason][b]||{}).rank || 99;
+    return ra - rb;
+  });
+  const teamCount = teams.length;
+  let html = '<table class="matrix"><thead><tr><th>Team</th>' + seasons.map(s=>`<th>${s}</th>`).join('') + '</tr></thead><tbody>';
+  teams.forEach(team=>{
+    html += `<tr><td>${team}</td>`;
+    seasons.forEach(season=>{
+      const entry = bySeasonTeam[season][team];
+      if(!entry){ html += '<td>&mdash;</td>'; return; }
+      const cls = entry.rank===1 ? 'rank-1' : (entry.rank===teamCount ? 'rank-last' : '');
+      html += `<td><span class="rank-pill ${cls}">${entry.rank}</span>${entry.record?`<div style="font-size:10px; color:var(--ink-dim); margin-top:3px;">${entry.record}</div>`:''}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  body.innerHTML = '<div class="table-scroll">' + html + '</div>';
+}
+
+function populatePlayoffYears(){
+  const data = DATA.playoffs || [];
+  const sel = document.getElementById('playoff-year-select');
+  const prev = sel.value;
+  if(!data.length){ sel.innerHTML = '<option value="">No seasons saved</option>'; return; }
+  const seasons = data.map(d=>d.season).sort().reverse();
+  sel.innerHTML = seasons.map(s=>`<option value="${s}">${s}</option>`).join('');
+  if(seasons.includes(prev)) sel.value = prev;
+}
+
+function loadPlayoffBracket(season){
+  const body = document.getElementById('playoff-bracket-body');
+  const data = DATA.playoffs || [];
+  const entry = data.find(d=>String(d.season)===String(season));
+  if(!entry){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No playoff bracket saved yet.</div>'; return; }
+  let html = '';
+  (entry.rounds||[]).forEach(round=>{
+    html += `<div class="bracket-round"><div class="bracket-round-label">${round.name}</div>`;
+    (round.matchups||[]).forEach(m=>{
+      const aWin = m.aScore > m.bScore;
+      html += `
+        <div class="bracket-matchup">
+          <div class="bracket-side ${aWin?'win':''}"><span>${m.a}</span><span class="bracket-score">${Number(m.aScore).toFixed(1)}</span></div>
+          <div class="bracket-side ${!aWin?'win':''}"><span>${m.b}</span><span class="bracket-score">${Number(m.bScore).toFixed(1)}</span></div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html || '<div class="empty"><i class="ti ti-trophy"></i>No playoff bracket saved yet.</div>';
+}
+
+function loadHouseRules(){
+  const body = document.getElementById('houserules-body');
+  const lines = DATA.house_rules || [];
+  if(!lines.length){ body.innerHTML = '<div class="empty"><i class="ti ti-gavel"></i>No house rules added yet.</div>'; return; }
+  body.innerHTML = lines.map(l=>`<div class="rule-row"><div class="rule-dot"></div><div>${l}</div></div>`).join('');
+}
+
+document.getElementById('waiver-week-select').addEventListener('change', e=>loadWaivers(e.target.value));
+document.getElementById('matchup-week-select').addEventListener('change', e=>loadMatchups(e.target.value));
+document.getElementById('playoff-year-select').addEventListener('change', e=>loadPlayoffBracket(e.target.value));
+
+async function refreshAll(){
+  await loadData();
+  loadHouseRules();
+  loadPreseason();
+  loadRankings();
+  populateWeekSelects();
+  loadWaivers(document.getElementById('waiver-week-select').value);
+  loadMatchups(document.getElementById('matchup-week-select').value);
+  loadAllTime();
+  loadChampions();
+  loadWeeklyHigh();
+  loadPlayerHigh();
+  loadStandingsMatrix();
+  populatePlayoffYears();
+  loadPlayoffBracket(document.getElementById('playoff-year-select').value);
+}
+refreshAll();
+</script>
+</body>
+</html>
