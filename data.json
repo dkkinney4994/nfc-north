@@ -63916,5 +63916,20 @@
     "Bottom 4 draft order is set by MaxPF (max potential points from optimal lineup, including taxi players) &mdash; lowest MaxPF picks first. Picks 5&ndash;8 are set by playoff finish.",
     "Rookie draft is 4 rounds.",
     "Lowest points for the week has to shotgun a beer."
-  ]
+  ],
+  "team_name_map": {
+    "339147671077916672": "Analytically the Champion",
+    "839020272534265856": "Biters Anonymous",
+    "1002390038023331840": "Eliott's Diablos",
+    "1002399688844230656": "Strangler On The Loose",
+    "1002442005600903168": "Chiran",
+    "1003033386094567424": "NatL",
+    "1003036470178942976": "Pizza Bagels",
+    "1004417548693135360": "DougNotFunny"
+  },
+  "seasons_history": {},
+  "current_draft": {
+    "draft_id": null,
+    "picks": []
+  }
 }
