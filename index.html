@@ -136,6 +136,21 @@
   .rule-row{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
   .rule-row:last-child{border-bottom:none;}
   .rule-dot{width:6px; height:6px; border-radius:50%; background:var(--gold); margin-top:6px; flex-shrink:0;}
+  table.h2h th, table.h2h td{white-space:nowrap;}
+  table.h2h th:first-child, table.h2h td:first-child{position:sticky; left:0; background:var(--card); z-index:1;}
+  .h2h-record{font-family:ui-monospace,'SF Mono',monospace; font-size:11px;}
+  .h2h-diag{color:var(--ink-dim);}
+  .trade-row{padding:12px 0; border-bottom:1px solid var(--line);}
+  .trade-row:last-child{border-bottom:none;}
+  .trade-meta{font-size:11px; color:var(--ink-dim); margin-bottom:5px;}
+  .trade-teams{font-size:13px; font-weight:700;}
+  .trade-detail{font-size:12px; color:var(--ink-dim); margin-top:4px;}
+  .draft-round{margin-bottom:16px;}
+  .draft-round-label{font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:8px;}
+  .draft-pick-row{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .draft-pick-row:last-child{border-bottom:none;}
+  .draft-pick-num{font-family:ui-monospace,'SF Mono',monospace; color:var(--gold-dim); width:28px; font-weight:700;}
+  .draft-pick-team{color:var(--ink-dim); font-size:11px;}
 </style>
 </head>
 <body>
@@ -191,11 +206,11 @@
   </section>
 
   <section class="view" id="view-rules">
-    <div class="subnav">
+    <div class="subnav" data-group="rules">
       <button data-subview="info" class="active">League rules</button>
       <button data-subview="disputes">Disputes &amp; rule changes</button>
     </div>
-    <div class="subview active" id="rules-subview-info">
+    <div class="subview active" data-group="rules" id="rules-subview-info">
     <div class="card">
       <h2>Roster and lineup</h2>
       <div class="desc">10 starters, 13 bench, 8-team league</div>
@@ -269,7 +284,7 @@
       <div id="houserules-body"><div class="empty"><i class="ti ti-gavel"></i>No house rules added yet.</div></div>
     </div>
     </div>
-    <div class="subview" id="rules-subview-disputes">
+    <div class="subview" data-group="rules" id="rules-subview-disputes">
       <div class="card">
         <h2>Disputes and rule changes</h2>
         <div class="desc">Raise something with the commissioner &mdash; goes straight to a private form, not posted publicly</div>
@@ -281,39 +296,76 @@
   </section>
 
   <section class="view" id="view-history">
-    <div class="card">
-      <h2>All-time records</h2>
-      <div class="desc">Career win-loss and points, across seasons</div>
-      <div id="alltime-body"><div class="empty"><i class="ti ti-medal"></i>No all-time records saved yet.</div></div>
+    <div class="subnav" data-group="history">
+      <button data-subview="recordbook" class="active">Record book</button>
+      <button data-subview="trades">Trade history log</button>
+      <button data-subview="drafts">Past draft results</button>
     </div>
-    <div class="card">
-      <h2>Past champions</h2>
-      <div class="desc">League winners by season</div>
-      <div id="champions-body"><div class="empty"><i class="ti ti-crown"></i>No champions saved yet.</div></div>
-    </div>
-    <div class="card">
-      <h2>Regular season standings</h2>
-      <div class="desc">Final rank by team, year over year</div>
-      <div id="standings-matrix-body"><div class="empty"><i class="ti ti-table"></i>No year-by-year standings saved yet.</div></div>
-    </div>
-    <div class="card">
-      <div class="week-select">
-        <label for="playoff-year-select">Season</label>
-        <select id="playoff-year-select"></select>
+
+    <div class="subview active" data-group="history" id="history-subview-recordbook">
+      <div class="card">
+        <h2>All-time records</h2>
+        <div class="desc">Career win-loss and points, across seasons</div>
+        <div id="alltime-body"><div class="empty"><i class="ti ti-medal"></i>No all-time records saved yet.</div></div>
       </div>
-      <h2>Playoff bracket</h2>
-      <div class="desc">Path to the title, by round</div>
-      <div id="playoff-bracket-body"><div class="empty"><i class="ti ti-trophy"></i>No playoff bracket saved yet.</div></div>
+      <div class="card">
+        <h2>Head-to-head</h2>
+        <div class="desc">Career record of each team against every other team</div>
+        <div id="h2h-body"><div class="empty"><i class="ti ti-swords"></i>No head-to-head data yet.</div></div>
+      </div>
+      <div class="card">
+        <h2>Past champions</h2>
+        <div class="desc">League winners by season</div>
+        <div id="champions-body"><div class="empty"><i class="ti ti-crown"></i>No champions saved yet.</div></div>
+      </div>
+      <div class="card">
+        <h2>Regular season standings</h2>
+        <div class="desc">Final rank by team, year over year</div>
+        <div id="standings-matrix-body"><div class="empty"><i class="ti ti-table"></i>No year-by-year standings saved yet.</div></div>
+      </div>
+      <div class="card">
+        <div class="week-select">
+          <label for="playoff-year-select">Season</label>
+          <select id="playoff-year-select"></select>
+        </div>
+        <h2>Playoff bracket</h2>
+        <div class="desc">Path to the title, by round</div>
+        <div id="playoff-bracket-body"><div class="empty"><i class="ti ti-trophy"></i>No playoff bracket saved yet.</div></div>
+      </div>
+      <div class="card">
+        <h2>Weekly high scores</h2>
+        <div class="desc">Best single-week totals, all time</div>
+        <div id="weeklyhigh-body"><div class="empty"><i class="ti ti-flame"></i>No weekly highs saved yet.</div></div>
+      </div>
+      <div class="card">
+        <h2>Player high scores</h2>
+        <div class="desc">Best single-player performances, all time</div>
+        <div id="playerhigh-body"><div class="empty"><i class="ti ti-star"></i>No player highs saved yet.</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h2>Weekly high scores</h2>
-      <div class="desc">Best single-week totals, all time</div>
-      <div id="weeklyhigh-body"><div class="empty"><i class="ti ti-flame"></i>No weekly highs saved yet.</div></div>
+
+    <div class="subview" data-group="history" id="history-subview-trades">
+      <div class="card">
+        <div class="week-select">
+          <label for="trade-year-select">Season</label>
+          <select id="trade-year-select"></select>
+        </div>
+        <h2>Trade history log</h2>
+        <div class="desc">Every trade ever made in the league</div>
+        <div id="trade-log-body"><div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h2>Player high scores</h2>
-      <div class="desc">Best single-player performances, all time</div>
-      <div id="playerhigh-body"><div class="empty"><i class="ti ti-star"></i>No player highs saved yet.</div></div>
+
+    <div class="subview" data-group="history" id="history-subview-drafts">
+      <div class="card">
+        <div class="week-select">
+          <label for="draft-year-select">Season</label>
+          <select id="draft-year-select"></select>
+        </div>
+        <h2>Past draft results</h2>
+        <div class="desc">Rookie draft order and picks, by round</div>
+        <div id="draft-results-body"><div class="empty"><i class="ti ti-list-numbers"></i>No draft data yet.</div></div>
+      </div>
     </div>
   </section>
 
@@ -345,10 +397,11 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
 
 document.querySelectorAll('.subnav button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.subnav button').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.subview').forEach(v=>v.classList.remove('active'));
+    const group = btn.closest('.subnav').dataset.group;
+    document.querySelectorAll(`.subnav[data-group="${group}"] button`).forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll(`.subview[data-group="${group}"]`).forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('rules-subview-'+btn.dataset.subview).classList.add('active');
+    document.getElementById(group+'-subview-'+btn.dataset.subview).classList.add('active');
   });
 });
 
@@ -369,6 +422,149 @@ function pname(id){
 
 function userMap(){ const m={}; (DATA.users||[]).forEach(u=>m[u.user_id]=u); return m; }
 function rosterOwnerMap(){ const m={}; (DATA.rosters||[]).forEach(r=>m[r.roster_id]=r.owner_id); return m; }
+
+function teamNameForOwnerId(ownerId){
+  if(DATA.team_name_map && DATA.team_name_map[ownerId]) return DATA.team_name_map[ownerId];
+  const u = userMap()[ownerId];
+  return u ? teamLabel(u).name : 'Unknown';
+}
+
+function allSeasonsData(){
+  const list = [];
+  const hist = DATA.seasons_history || {};
+  Object.keys(hist).sort().forEach(season=>{
+    const s = hist[season];
+    list.push({season, rosters: s.rosters||[], matchups: s.matchups||{}, transactions: s.transactions||{}, draft_picks: s.draft_picks||[]});
+  });
+  const currentSeason = (DATA.meta && DATA.meta.season) || String(new Date().getFullYear());
+  list.push({
+    season: String(currentSeason),
+    rosters: DATA.rosters||[],
+    matchups: DATA.matchups||{},
+    transactions: DATA.transactions||{},
+    draft_picks: (DATA.current_draft && DATA.current_draft.picks) || [],
+    isCurrent: true
+  });
+  return list;
+}
+
+function loadHeadToHead(){
+  const body = document.getElementById('h2h-body');
+  const seasons = allSeasonsData();
+  const h2h = {};
+  const teamsSet = new Set();
+  seasons.forEach(s=>{
+    const rosterOwner = {}; (s.rosters||[]).forEach(r=>rosterOwner[r.roster_id]=r.owner_id);
+    Object.values(s.matchups||{}).forEach(weekMatchups=>{
+      const byId = {};
+      (weekMatchups||[]).forEach(m=>{ (byId[m.matchup_id]=byId[m.matchup_id]||[]).push(m); });
+      Object.values(byId).forEach(pair=>{
+        if(pair.length<2) return;
+        const [a,b] = pair;
+        if(a.points==null || b.points==null) return;
+        const teamA = teamNameForOwnerId(rosterOwner[a.roster_id]);
+        const teamB = teamNameForOwnerId(rosterOwner[b.roster_id]);
+        if(teamA==='Unknown' || teamB==='Unknown') return;
+        teamsSet.add(teamA); teamsSet.add(teamB);
+        h2h[teamA] = h2h[teamA]||{}; h2h[teamB] = h2h[teamB]||{};
+        h2h[teamA][teamB] = h2h[teamA][teamB]||{w:0,l:0};
+        h2h[teamB][teamA] = h2h[teamB][teamA]||{w:0,l:0};
+        if(a.points > b.points){ h2h[teamA][teamB].w++; h2h[teamB][teamA].l++; }
+        else if(b.points > a.points){ h2h[teamB][teamA].w++; h2h[teamA][teamB].l++; }
+      });
+    });
+  });
+  const teams = Array.from(teamsSet).sort();
+  if(!teams.length){ body.innerHTML = '<div class="empty"><i class="ti ti-swords"></i>No head-to-head data yet.</div>'; return; }
+  let html = '<div class="table-scroll"><table class="matrix h2h"><thead><tr><th>Team</th>' + teams.map(t=>`<th title="${t}">${t.split(' ')[0]}</th>`).join('') + '</tr></thead><tbody>';
+  teams.forEach(teamA=>{
+    html += `<tr><td>${teamA}</td>`;
+    teams.forEach(teamB=>{
+      if(teamA===teamB){ html += '<td class="h2h-diag">&mdash;</td>'; return; }
+      const rec = (h2h[teamA] && h2h[teamA][teamB]) || {w:0,l:0};
+      if(rec.w===0 && rec.l===0){ html += '<td class="h2h-diag">&mdash;</td>'; return; }
+      html += `<td class="h2h-record">${rec.w}-${rec.l}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+function populateTradeYears(){
+  const seasons = allSeasonsData();
+  const sel = document.getElementById('trade-year-select');
+  const prev = sel.value;
+  const years = seasons.map(s=>s.season);
+  sel.innerHTML = '<option value="all">All time</option>' + years.slice().reverse().map(y=>`<option value="${y}">${y}</option>`).join('');
+  sel.value = (prev && (prev==='all' || years.includes(prev))) ? prev : 'all';
+}
+
+function loadTradeLog(yearFilter){
+  const body = document.getElementById('trade-log-body');
+  const seasons = allSeasonsData();
+  const rows = [];
+  seasons.forEach(s=>{
+    if(yearFilter && yearFilter!=='all' && String(s.season)!==String(yearFilter)) return;
+    const rosterOwner = {}; (s.rosters||[]).forEach(r=>rosterOwner[r.roster_id]=r.owner_id);
+    Object.keys(s.transactions||{}).forEach(week=>{
+      (s.transactions[week]||[]).forEach(t=>{
+        if(t.type!=='trade' || t.status!=='complete') return;
+        rows.push({season:s.season, week:Number(week), tx:t, rosterOwner});
+      });
+    });
+  });
+  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div>'; return; }
+  rows.sort((a,b)=> String(b.season).localeCompare(String(a.season)) || b.week-a.week);
+  body.innerHTML = rows.map(r=>{
+    const t = r.tx;
+    const teams = (t.roster_ids||[]).map(rid=>teamNameForOwnerId(r.rosterOwner[rid]));
+    const parts = (t.roster_ids||[]).map(rid=>{
+      const team = teamNameForOwnerId(r.rosterOwner[rid]);
+      const added = Object.keys(t.adds||{}).filter(pid=>t.adds[pid]===rid).map(pname);
+      return added.length ? `${team} gets ${added.join(', ')}` : null;
+    }).filter(Boolean);
+    return `
+      <div class="trade-row">
+        <div class="trade-meta">${r.season} &middot; week ${r.week}</div>
+        <div class="trade-teams">${teams.join(' \u2194 ')}</div>
+        ${parts.length ? `<div class="trade-detail">${parts.join('<br>')}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function populateDraftYears(){
+  const seasons = allSeasonsData();
+  const sel = document.getElementById('draft-year-select');
+  const prev = sel.value;
+  const withDrafts = seasons.filter(s=> s.draft_picks && s.draft_picks.length);
+  if(!withDrafts.length){ sel.innerHTML = '<option value="">No drafts yet</option>'; return; }
+  const years = withDrafts.map(s=>s.season).sort().reverse();
+  sel.innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  if(years.includes(prev)) sel.value = prev;
+}
+
+function loadDraftResults(year){
+  const body = document.getElementById('draft-results-body');
+  const seasons = allSeasonsData();
+  const entry = seasons.find(s=>String(s.season)===String(year));
+  if(!entry || !entry.draft_picks || !entry.draft_picks.length){ body.innerHTML = '<div class="empty"><i class="ti ti-list-numbers"></i>No draft data yet.</div>'; return; }
+  const rosterOwner = {}; (entry.rosters||[]).forEach(r=>rosterOwner[r.roster_id]=r.owner_id);
+  const byRound = {};
+  entry.draft_picks.forEach(p=>{ (byRound[p.round]=byRound[p.round]||[]).push(p); });
+  let html = '';
+  Object.keys(byRound).sort((a,b)=>Number(a)-Number(b)).forEach(round=>{
+    html += `<div class="draft-round"><div class="draft-round-label">Round ${round}</div>`;
+    byRound[round].sort((a,b)=>a.pick_no-b.pick_no).forEach(p=>{
+      const team = teamNameForOwnerId(p.picked_by || rosterOwner[p.roster_id]);
+      const playerName = (p.metadata && (p.metadata.first_name || p.metadata.last_name)) ? `${p.metadata.first_name||''} ${p.metadata.last_name||''}`.trim() : pname(p.player_id);
+      html += `<div class="draft-pick-row"><div class="draft-pick-num">${p.pick_no}</div><div style="flex:1;">${playerName}</div><div class="draft-pick-team">${team}</div></div>`;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
 
 function loadPreseason(){
   const body = document.getElementById('preseason-body');
@@ -637,6 +833,8 @@ function loadHouseRules(){
 document.getElementById('waiver-week-select').addEventListener('change', e=>loadWaivers(e.target.value));
 document.getElementById('matchup-week-select').addEventListener('change', e=>loadMatchups(e.target.value));
 document.getElementById('playoff-year-select').addEventListener('change', e=>loadPlayoffBracket(e.target.value));
+document.getElementById('trade-year-select').addEventListener('change', e=>loadTradeLog(e.target.value));
+document.getElementById('draft-year-select').addEventListener('change', e=>loadDraftResults(e.target.value));
 
 async function refreshAll(){
   await loadData();
@@ -653,6 +851,11 @@ async function refreshAll(){
   loadStandingsMatrix();
   populatePlayoffYears();
   loadPlayoffBracket(document.getElementById('playoff-year-select').value);
+  loadHeadToHead();
+  populateTradeYears();
+  loadTradeLog(document.getElementById('trade-year-select').value);
+  populateDraftYears();
+  loadDraftResults(document.getElementById('draft-year-select').value);
 }
 refreshAll();
 </script>
