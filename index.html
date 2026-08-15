@@ -22,6 +22,11 @@
   nav.tabs{display:flex; gap:4px; margin:24px 0 20px; background:var(--field2); padding:4px; border-radius:14px; overflow-x:auto; border:1px solid var(--line);}
   nav.tabs button{flex:1; min-width:120px; background:transparent; color:var(--chalk-dim); border:none; padding:11px 10px; font-size:13px; font-weight:600; letter-spacing:.02em; border-radius:10px; cursor:pointer; transition:background .15s, color .15s;}
   nav.tabs button.active{background:var(--gold); color:#04170c; font-weight:700;}
+  .subnav{display:flex; gap:4px; margin-bottom:16px; background:var(--field2); padding:3px; border-radius:12px; border:1px solid var(--line); width:fit-content;}
+  .subnav button{background:transparent; color:var(--chalk-dim); border:none; padding:8px 16px; font-size:12.5px; font-weight:600; border-radius:9px; cursor:pointer;}
+  .subnav button.active{background:var(--gold); color:#04170c;}
+  .subview{display:none;}
+  .subview.active{display:block;}
   section.view{display:none;}
   section.view.active{display:block;}
   .card{background:var(--card); color:var(--ink); border-radius:16px; padding:20px 22px; margin-bottom:14px; border:1px solid var(--line);}
@@ -112,6 +117,7 @@
     table.matrix{font-size:11px;}
     .updater-actions{flex-direction:column; align-items:stretch;}
     button.save{width:100%;}
+    iframe{height:1000px !important;}
   }
   table.matrix{width:100%; border-collapse:collapse; font-size:12.5px;}
   table.matrix th{text-align:center; font-weight:700; color:var(--chalk-dim); font-size:11px; padding:6px 4px; border-bottom:1px solid var(--line);}
@@ -185,6 +191,11 @@
   </section>
 
   <section class="view" id="view-rules">
+    <div class="subnav">
+      <button data-subview="info" class="active">League rules</button>
+      <button data-subview="disputes">Disputes &amp; rule changes</button>
+    </div>
+    <div class="subview active" id="rules-subview-info">
     <div class="card">
       <h2>Roster and lineup</h2>
       <div class="desc">10 starters, 13 bench, 8-team league</div>
@@ -257,6 +268,16 @@
       <div class="desc">Anything beyond the Sleeper settings &mdash; punishments, side bets, custom tiebreakers</div>
       <div id="houserules-body"><div class="empty"><i class="ti ti-gavel"></i>No house rules added yet.</div></div>
     </div>
+    </div>
+    <div class="subview" id="rules-subview-disputes">
+      <div class="card">
+        <h2>Disputes and rule changes</h2>
+        <div class="desc">Raise something with the commissioner &mdash; goes straight to a private form, not posted publicly</div>
+        <div style="border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#fff;">
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdbDC9tT7jhfZk8FbwBjnG-z6U2sygcND0K5TaM3AVZNqKl2w/viewform?embedded=true" width="100%" height="1271" frameborder="0" marginheight="0" marginwidth="0" style="display:block;">Loading&hellip;</iframe>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="view" id="view-history">
@@ -322,6 +343,15 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
   });
 });
 
+document.querySelectorAll('.subnav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.subnav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.subview').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('rules-subview-'+btn.dataset.subview).classList.add('active');
+  });
+});
+
 async function loadData(){
   try{
     const res = await fetch('data.json?t=' + Date.now());
@@ -369,7 +399,14 @@ function loadRankings(){
     const fpts = ((r.settings && r.settings.fpts) || 0) + ((r.settings && r.settings.fpts_decimal || 0)/100);
     const fptsAgainst = ((r.settings && r.settings.fpts_against) || 0) + ((r.settings && r.settings.fpts_against_decimal || 0)/100);
     return {label, w, l, t, fpts, fptsAgainst};
-  }).sort((a,b)=> b.fpts - a.fpts);
+  }).sort((a,b)=>{
+    const aGames = a.w + a.l + a.t;
+    const bGames = b.w + b.l + b.t;
+    const aWinPct = aGames ? (a.w + a.t*0.5) / aGames : 0;
+    const bWinPct = bGames ? (b.w + b.t*0.5) / bGames : 0;
+    if(bWinPct !== aWinPct) return bWinPct - aWinPct;
+    return b.fpts - a.fpts;
+  });
   const maxPts = Math.max(...rows.map(r=>r.fpts), 1);
   body.innerHTML = rows.map((r,i)=>`
     <div class="rank-row">
@@ -380,8 +417,8 @@ function loadRankings(){
         <div class="bar-track"><div class="bar-fill" style="width:${(r.fpts/maxPts*100).toFixed(0)}%"></div></div>
       </div>
       <div class="rank-stats">
-        <div class="pts">${r.fpts.toFixed(1)}</div>
-        <div>${r.w}-${r.l}${r.t?('-'+r.t):''} · vs ${r.fptsAgainst.toFixed(1)}</div>
+        <div class="pts">${r.w}-${r.l}${r.t?('-'+r.t):''}</div>
+        <div>${r.fpts.toFixed(1)} pts · vs ${r.fptsAgainst.toFixed(1)}</div>
       </div>
     </div>
   `).join('');
