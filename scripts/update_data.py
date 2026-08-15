@@ -77,6 +77,16 @@ def main():
         if txs:
             data["transactions"][str(week)] = txs
 
+    print("Checking for this season's draft...")
+    league_info = try_get_json(BASE)
+    draft_id = league_info.get("draft_id") if league_info else None
+    data.setdefault("current_draft", {"draft_id": None, "picks": []})
+    if draft_id:
+        picks = try_get_json(f"https://api.sleeper.app/v1/draft/{draft_id}/picks")
+        if picks:
+            data["current_draft"] = {"draft_id": draft_id, "picks": picks}
+            print(f"  saved {len(picks)} draft picks")
+
     data.setdefault("meta", {})
     data["meta"]["league_id"] = LEAGUE_ID
     data["meta"]["last_updated"] = datetime.now(timezone.utc).isoformat()
