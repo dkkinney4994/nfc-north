@@ -1,7 +1,7 @@
 {
   "meta": {
     "league_id": "1310099274612080640",
-    "last_updated": "2026-08-14T15:30:46.673810+00:00"
+    "last_updated": "2026-08-15T15:56:46.201164+00:00"
   },
   "users": [
     {
@@ -332,12 +332,12 @@
         "wins": 0
       },
       "starters": [
-        "3294",
+        "11560",
         "4034",
         "5892",
         "8112",
-        "5927",
-        "2133",
+        "7525",
+        "7526",
         "11604",
         "6801",
         "11632",
@@ -377,7 +377,9 @@
         "CHI",
         "LAC"
       ],
-      "reserve": null,
+      "reserve": [
+        "4217"
+      ],
       "roster_id": 4,
       "settings": {
         "fpts": 0,
@@ -398,7 +400,7 @@
         "12517",
         "10232",
         "1466",
-        "CHI"
+        "LAC"
       ],
       "taxi": null
     },
@@ -63912,6 +63914,7 @@
   ],
   "house_rules": [
     "Bottom 4 draft order is set by MaxPF (max potential points from optimal lineup, including taxi players) &mdash; lowest MaxPF picks first. Picks 5&ndash;8 are set by playoff finish.",
-    "Rookie draft is 4 rounds.","Lowest points for the week has to shotgun a beer."
+    "Rookie draft is 4 rounds.",
+    "Lowest points for the week has to shotgun a beer."
   ]
 }
