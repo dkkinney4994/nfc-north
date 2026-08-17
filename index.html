@@ -180,14 +180,13 @@
 
   <section class="view active" id="view-rankings">
     <div class="card">
-      <h2>Preseason power rankings</h2>
-      <div class="desc">Where the league stands before week 1 kicks off</div>
-      <div id="preseason-body"></div>
-    </div>
-    <div class="card">
+      <div class="week-select">
+        <label for="rankings-week-select">Week</label>
+        <select id="rankings-week-select"></select>
+      </div>
       <h2>Power rankings</h2>
-      <div class="desc">Ranked by total points scored · record shown alongside</div>
-      <div id="rankings-body"><div class="empty"><i class="ti ti-trophy"></i>No roster data yet. Open "Update data" below and paste it in.</div></div>
+      <div class="desc">Standings as of the selected week &middot; record first, points as tiebreaker</div>
+      <div id="rankings-week-body"><div class="empty"><i class="ti ti-trophy"></i>No data yet.</div></div>
     </div>
     <div class="card">
       <h2>Mock draft order</h2>
@@ -587,35 +586,64 @@ function loadDraftResults(year){
   body.innerHTML = html;
 }
 
-function loadPreseason(){
-  const body = document.getElementById('preseason-body');
-  const rows = DATA.preseason || [];
-  if(!rows.length){ body.innerHTML = ''; return; }
-  body.innerHTML = rows.map((r,i)=>`
-    <div class="rank-row">
-      <div class="rank-num ${i===0?'top':''}">${i+1}</div>
-      <div class="rank-team">
-        <div class="name">${r.team}</div>
-        ${r.blurb ? `<div class="blurb">${r.blurb}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
+function populateRankingsWeeks(){
+  const sel = document.getElementById('rankings-week-select');
+  const prev = sel.value;
+  const weeks = availableWeeks();
+  let opts = '<option value="preseason">Preseason</option>' + weeks.map(w=>`<option value="${w}">Week ${w}</option>`).join('');
+  sel.innerHTML = opts;
+  const allValues = ['preseason', ...weeks.map(String)];
+  sel.value = allValues.includes(prev) ? prev : (weeks.length ? String(weeks[weeks.length-1]) : 'preseason');
 }
 
-function loadRankings(){
-  const body = document.getElementById('rankings-body');
+function loadRankingsForWeek(selection){
+  const body = document.getElementById('rankings-week-body');
+
+  if(!selection || selection === 'preseason'){
+    const rows = DATA.preseason || [];
+    if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No preseason rankings set yet.</div>'; return; }
+    body.innerHTML = rows.map((r,i)=>`
+      <div class="rank-row">
+        <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+        <div class="rank-team">
+          <div class="name">${r.team}</div>
+          ${r.blurb ? `<div class="blurb">${r.blurb}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  const week = Number(selection);
   const rosters = DATA.rosters || [];
-  if(!rosters.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No roster data yet &mdash; will populate once the season starts.</div>'; return; }
+  if(!rosters.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No roster data yet.</div>'; return; }
   const uMap = userMap();
+  const stats = {};
+  rosters.forEach(r=>{ stats[r.roster_id] = {w:0,l:0,t:0,fpts:0,fptsAgainst:0}; });
+
+  for(let wk=1; wk<=week; wk++){
+    const mus = (DATA.matchups && DATA.matchups[String(wk)]) || [];
+    const byId = {};
+    mus.forEach(m=>{ (byId[m.matchup_id]=byId[m.matchup_id]||[]).push(m); });
+    Object.values(byId).forEach(pair=>{
+      if(pair.length < 2) return;
+      const [a,b] = pair;
+      if(a.points==null || b.points==null) return;
+      if(!stats[a.roster_id] || !stats[b.roster_id]) return;
+      stats[a.roster_id].fpts += a.points;
+      stats[b.roster_id].fpts += b.points;
+      stats[a.roster_id].fptsAgainst += b.points;
+      stats[b.roster_id].fptsAgainst += a.points;
+      if(a.points > b.points){ stats[a.roster_id].w++; stats[b.roster_id].l++; }
+      else if(b.points > a.points){ stats[b.roster_id].w++; stats[a.roster_id].l++; }
+      else { stats[a.roster_id].t++; stats[b.roster_id].t++; }
+    });
+  }
+
   const rows = rosters.map(r=>{
-    const u = uMap[r.owner_id];
-    const label = teamLabel(u);
-    const w = (r.settings && r.settings.wins) || 0;
-    const l = (r.settings && r.settings.losses) || 0;
-    const t = (r.settings && r.settings.ties) || 0;
-    const fpts = ((r.settings && r.settings.fpts) || 0) + ((r.settings && r.settings.fpts_decimal || 0)/100);
-    const fptsAgainst = ((r.settings && r.settings.fpts_against) || 0) + ((r.settings && r.settings.fpts_against_decimal || 0)/100);
-    return {label, w, l, t, fpts, fptsAgainst};
+    const label = teamLabel(uMap[r.owner_id]);
+    const s = stats[r.roster_id];
+    return {label, ...s};
   }).sort((a,b)=>{
     const aGames = a.w + a.l + a.t;
     const bGames = b.w + b.l + b.t;
@@ -624,6 +652,12 @@ function loadRankings(){
     if(bWinPct !== aWinPct) return bWinPct - aWinPct;
     return b.fpts - a.fpts;
   });
+
+  if(!rows.some(r=>r.w+r.l+r.t > 0)){
+    body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No games played through this week yet.</div>';
+    return;
+  }
+
   const maxPts = Math.max(...rows.map(r=>r.fpts), 1);
   body.innerHTML = rows.map((r,i)=>`
     <div class="rank-row">
@@ -912,14 +946,15 @@ function loadHouseRules(){
 document.getElementById('waiver-week-select').addEventListener('change', e=>loadWaivers(e.target.value));
 document.getElementById('matchup-week-select').addEventListener('change', e=>loadMatchups(e.target.value));
 document.getElementById('playoff-year-select').addEventListener('change', e=>loadPlayoffBracket(e.target.value));
+document.getElementById('rankings-week-select').addEventListener('change', e=>loadRankingsForWeek(e.target.value));
 document.getElementById('trade-year-select').addEventListener('change', e=>loadTradeLog(e.target.value));
 document.getElementById('draft-year-select').addEventListener('change', e=>loadDraftResults(e.target.value));
 
 async function refreshAll(){
   await loadData();
   loadHouseRules();
-  loadPreseason();
-  loadRankings();
+  populateRankingsWeeks();
+  loadRankingsForWeek(document.getElementById('rankings-week-select').value);
   loadMockDraft();
   populateWeekSelects();
   loadWaivers(document.getElementById('waiver-week-select').value);
