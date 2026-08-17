@@ -1067,14 +1067,19 @@ function loadAllTime(){
   const body = document.getElementById('alltime-body');
   const records = DATA.alltime || [];
   if(!records.length){ body.innerHTML = '<div class="empty"><i class="ti ti-medal"></i>No all-time records saved yet.</div>'; return; }
+  const champCounts = {};
+  (DATA.champions || []).forEach(c=>{ champCounts[c.champion] = (champCounts[c.champion]||0) + 1; });
   const sorted = [...records].sort((a,b)=> (b.wins||0)-(a.wins||0));
-  body.innerHTML = sorted.map(r=>`
+  body.innerHTML = sorted.map(r=>{
+    const titles = champCounts[r.team] || 0;
+    return `
     <div class="at-row">
-      <div class="at-team">${r.team}</div>
+      <div class="at-team">${r.team}${titles ? ` <i class="ti ti-trophy" style="color:var(--gold); font-size:12px;" title="${titles} championship${titles>1?'s':''}"></i>${titles>1 ? ' x'+titles : ''}` : ''}</div>
       <div class="at-record">${r.wins||0}-${r.losses||0}${r.ties?('-'+r.ties):''}</div>
       <div class="at-pts">${r.points_for!=null ? Number(r.points_for).toFixed(1)+' pts' : ''}</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function loadChampions(){
@@ -1138,6 +1143,8 @@ function loadStandingsMatrix(){
     return ra - rb;
   });
   const teamCount = teams.length;
+  const champBySeason = {};
+  (DATA.champions || []).forEach(c=>{ champBySeason[c.season] = c.champion; });
   let html = '<table class="matrix"><thead><tr><th>Team</th>' + seasons.map(s=>`<th>${s}</th>`).join('') + '</tr></thead><tbody>';
   teams.forEach(team=>{
     html += `<tr><td>${team}</td>`;
@@ -1145,7 +1152,8 @@ function loadStandingsMatrix(){
       const entry = bySeasonTeam[season][team];
       if(!entry){ html += '<td>&mdash;</td>'; return; }
       const cls = entry.rank===1 ? 'rank-1' : (entry.rank===teamCount ? 'rank-last' : '');
-      html += `<td><span class="rank-pill ${cls}">${entry.rank}</span>${entry.record?`<div style="font-size:10px; color:var(--ink-dim); margin-top:3px;">${entry.record}</div>`:''}</td>`;
+      const isChamp = champBySeason[season] === team;
+      html += `<td><span class="rank-pill ${cls}">${entry.rank}</span>${isChamp ? ' <i class="ti ti-trophy" style="color:var(--gold); font-size:11px;" title="Champion"></i>' : ''}${entry.record?`<div style="font-size:10px; color:var(--ink-dim); margin-top:3px;">${entry.record}</div>`:''}</td>`;
     });
     html += '</tr>';
   });
