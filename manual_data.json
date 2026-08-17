@@ -1,0 +1,366 @@
+{
+  "house_rules": [
+    "Bottom 4 draft order is set by MaxPF (max potential points from optimal lineup, including taxi players) &mdash; lowest MaxPF picks first. Picks 5&ndash;8 are set by playoff finish.",
+    "Rookie draft is 4 rounds.",
+    "Lowest points for the week has to shotgun a beer."
+  ],
+  "champions": [
+    {
+      "season": "2025",
+      "champion": "Chiran",
+      "runner_up": "Biters Anonymous"
+    },
+    {
+      "season": "2024",
+      "champion": "Biters Anonymous",
+      "runner_up": "NatL"
+    },
+    {
+      "season": "2023",
+      "champion": "DougNotFunny",
+      "runner_up": "Biters Anonymous"
+    }
+  ],
+  "preseason": [
+    {
+      "team": "Chiran",
+      "blurb": "2025 champion, best all-time win%"
+    },
+    {
+      "team": "Strangler On The Loose",
+      "blurb": "Right at .500 all-time"
+    },
+    {
+      "team": "DougNotFunny",
+      "blurb": "2023 champion"
+    },
+    {
+      "team": "Biters Anonymous",
+      "blurb": "Highest all-time points scored"
+    },
+    {
+      "team": "Eliott's Diablos",
+      "blurb": "Held the all-time weekly high once"
+    },
+    {
+      "team": "Analytically the Champion",
+      "blurb": "Steady above-.500 club member"
+    },
+    {
+      "team": "Pizza Bagels",
+      "blurb": "Due for a bounce-back season"
+    },
+    {
+      "team": "NatL",
+      "blurb": "Owns two of the top 10 weekly highs ever"
+    }
+  ],
+  "alltime": [
+    {
+      "team": "Chiran",
+      "wins": 27,
+      "losses": 17,
+      "points_for": 6576.58
+    },
+    {
+      "team": "Biters Anonymous",
+      "wins": 25,
+      "losses": 19,
+      "points_for": 6817.06
+    },
+    {
+      "team": "NatL",
+      "wins": 25,
+      "losses": 19,
+      "points_for": 6485.14
+    },
+    {
+      "team": "Analytically the Champion",
+      "wins": 24,
+      "losses": 20,
+      "points_for": 6305.86
+    },
+    {
+      "team": "Strangler On The Loose",
+      "wins": 23,
+      "losses": 21,
+      "points_for": 6102.52
+    },
+    {
+      "team": "Pizza Bagels",
+      "wins": 18,
+      "losses": 26,
+      "points_for": 6008.02
+    },
+    {
+      "team": "Eliott's Diablos",
+      "wins": 18,
+      "losses": 26,
+      "points_for": 5785.12
+    },
+    {
+      "team": "DougNotFunny",
+      "wins": 16,
+      "losses": 28,
+      "points_for": 6103.86
+    }
+  ],
+  "standings_by_year": [
+    {
+      "season": "2023",
+      "standings": [
+        {
+          "team": "Analytically the Champion",
+          "rank": 1,
+          "record": "12-3"
+        },
+        {
+          "team": "NatL",
+          "rank": 2,
+          "record": "11-4"
+        },
+        {
+          "team": "Biters Anonymous",
+          "rank": 3,
+          "record": "8-7"
+        },
+        {
+          "team": "DougNotFunny",
+          "rank": 4,
+          "record": "8-7"
+        },
+        {
+          "team": "Pizza Bagels",
+          "rank": 5,
+          "record": "8-7"
+        },
+        {
+          "team": "Chiran",
+          "rank": 6,
+          "record": "5-10"
+        },
+        {
+          "team": "Strangler On The Loose",
+          "rank": 7,
+          "record": "5-10"
+        },
+        {
+          "team": "Eliott's Diablos",
+          "rank": 8,
+          "record": "3-12"
+        }
+      ]
+    },
+    {
+      "season": "2024",
+      "standings": [
+        {
+          "team": "Chiran",
+          "rank": 1,
+          "record": "9-6"
+        },
+        {
+          "team": "NatL",
+          "rank": 2,
+          "record": "9-6"
+        },
+        {
+          "team": "Eliott's Diablos",
+          "rank": 3,
+          "record": "9-6"
+        },
+        {
+          "team": "Biters Anonymous",
+          "rank": 4,
+          "record": "8-7"
+        },
+        {
+          "team": "Analytically the Champion",
+          "rank": 5,
+          "record": "8-7"
+        },
+        {
+          "team": "Strangler On The Loose",
+          "rank": 6,
+          "record": "8-7"
+        },
+        {
+          "team": "Pizza Bagels",
+          "rank": 7,
+          "record": "5-10"
+        },
+        {
+          "team": "DougNotFunny",
+          "rank": 8,
+          "record": "4-11"
+        }
+      ]
+    },
+    {
+      "season": "2025",
+      "standings": [
+        {
+          "team": "Chiran",
+          "rank": 1,
+          "record": "13-1"
+        },
+        {
+          "team": "Strangler On The Loose",
+          "rank": 2,
+          "record": "10-4"
+        },
+        {
+          "team": "Biters Anonymous",
+          "rank": 3,
+          "record": "9-5"
+        },
+        {
+          "team": "Eliott's Diablos",
+          "rank": 4,
+          "record": "6-8"
+        },
+        {
+          "team": "Pizza Bagels",
+          "rank": 5,
+          "record": "5-9"
+        },
+        {
+          "team": "NatL",
+          "rank": 6,
+          "record": "5-9"
+        },
+        {
+          "team": "DougNotFunny",
+          "rank": 7,
+          "record": "4-10"
+        },
+        {
+          "team": "Analytically the Champion",
+          "rank": 8,
+          "record": "4-10"
+        }
+      ]
+    }
+  ],
+  "playoffs": [
+    {
+      "season": "2023",
+      "rounds": [
+        {
+          "name": "Semifinals",
+          "matchups": [
+            {
+              "a": "Analytically the Champion",
+              "aScore": 160.78,
+              "b": "DougNotFunny",
+              "bScore": 182.68
+            },
+            {
+              "a": "NatL",
+              "aScore": 142.22,
+              "b": "Biters Anonymous",
+              "bScore": 154.14
+            }
+          ]
+        },
+        {
+          "name": "Championship",
+          "matchups": [
+            {
+              "a": "DougNotFunny",
+              "aScore": 181.56,
+              "b": "Biters Anonymous",
+              "bScore": 167.38
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "season": "2024",
+      "rounds": [
+        {
+          "name": "Semifinals",
+          "matchups": [
+            {
+              "a": "Chiran",
+              "aScore": 176.52,
+              "b": "Biters Anonymous",
+              "bScore": 186.84
+            },
+            {
+              "a": "NatL",
+              "aScore": 164.98,
+              "b": "Eliott's Diablos",
+              "bScore": 82.38
+            }
+          ]
+        },
+        {
+          "name": "Championship",
+          "matchups": [
+            {
+              "a": "Biters Anonymous",
+              "aScore": 178.3,
+              "b": "NatL",
+              "bScore": 131.22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "season": "2025",
+      "rounds": [
+        {
+          "name": "Semifinals",
+          "matchups": [
+            {
+              "a": "Chiran",
+              "aScore": 169.52,
+              "b": "Eliott's Diablos",
+              "bScore": 147.16
+            },
+            {
+              "a": "Strangler On The Loose",
+              "aScore": 139.96,
+              "b": "Biters Anonymous",
+              "bScore": 235.7
+            }
+          ]
+        },
+        {
+          "name": "Championship",
+          "matchups": [
+            {
+              "a": "Chiran",
+              "aScore": 201.88,
+              "b": "Biters Anonymous",
+              "bScore": 177
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "team_name_map": {
+    "339147671077916672": "Analytically the Champion",
+    "839020272534265856": "Biters Anonymous",
+    "1002390038023331840": "Eliott's Diablos",
+    "1002399688844230656": "Strangler On The Loose",
+    "1002442005600903168": "Chiran",
+    "1003033386094567424": "NatL",
+    "1003036470178942976": "Pizza Bagels",
+    "1004417548693135360": "DougNotFunny"
+  },
+  "maxpf": {
+    "Analytically the Champion": null,
+    "Biters Anonymous": null,
+    "Eliott's Diablos": null,
+    "Strangler On The Loose": null,
+    "Chiran": null,
+    "NatL": null,
+    "Pizza Bagels": null,
+    "DougNotFunny": null
+  }
+}
