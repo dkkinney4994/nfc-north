@@ -25,6 +25,6 @@ jobs:
         run: |
           git config user.name "league-data-bot"
           git config user.email "actions@github.com"
-          git add data.json
+          git add live_data.json
           git diff --cached --quiet || git commit -m "Backfill past season history"
           git push
