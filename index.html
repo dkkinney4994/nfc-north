@@ -253,6 +253,7 @@
       <div class="card">
         <h2 id="team-profile-name">Team profile</h2>
         <div class="desc" id="team-profile-owner"></div>
+        <div style="font-size:13px; font-weight:700; margin-top:4px;" id="team-profile-titles"></div>
       </div>
 
       <div class="card">
@@ -714,6 +715,14 @@ function loadTeamProfile(teamName){
   const ownerId = ownerIdForTeamName(teamName);
   const u = ownerId ? userMap()[ownerId] : null;
   document.getElementById('team-profile-owner').textContent = u ? teamLabel(u).owner : '';
+
+  const titleCount = (DATA.champions || []).filter(c=>c.champion===teamName).length;
+  const titleBadge = document.getElementById('team-profile-titles');
+  if(titleBadge){
+    titleBadge.innerHTML = titleCount
+      ? `<i class="ti ti-trophy" style="color:var(--gold);"></i> ${titleCount} championship${titleCount>1?'s':''}`
+      : '';
+  }
 
   // Current roster
   const rosterBody = document.getElementById('team-roster-body');
