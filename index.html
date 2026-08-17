@@ -167,6 +167,13 @@
   .prospect-stats{display:flex; gap:14px; margin-top:6px; flex-wrap:wrap; font-family:ui-monospace,'SF Mono',monospace; font-size:11px; color:var(--ink-dim);}
   .prospect-stats .stat-val{color:var(--ink); font-weight:700;}
   .mock-team-tag{font-family:ui-monospace,'SF Mono',monospace; font-size:10.5px; font-weight:700; color:var(--gold-dim); width:34px; flex-shrink:0;}
+  .roster-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .roster-row{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .roster-row:last-child{border-bottom:none;}
+  .roster-row .pos{color:var(--gold-dim); font-family:ui-monospace,'SF Mono',monospace; font-size:10.5px; font-weight:700; margin-left:6px;}
+  .season-hist-row{display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .season-hist-row:last-child{border-bottom:none;}
+  .season-hist-year{font-family:ui-monospace,'SF Mono',monospace; color:var(--gold-dim); width:44px; font-weight:700;}
   .mock-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
   .mock-row:last-child{border-bottom:none;}
   .mock-num{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; font-size:18px; width:26px; color:var(--gold-dim);}
@@ -187,7 +194,7 @@
 </header>
 <div class="wrap">
   <nav class="tabs">
-    <button data-view="rankings" class="active">Power rankings</button>
+    <button data-view="rankings" class="active">Home</button>
     <button data-view="waivers">Waiver wire</button>
     <button data-view="matchups">Matchup review</button>
     <button data-view="rules">Rules</button>
@@ -195,6 +202,14 @@
   </nav>
 
   <section class="view active" id="view-rankings">
+    <div class="card">
+      <div class="week-select">
+        <label for="home-select">Viewing</label>
+        <select id="home-select"></select>
+      </div>
+    </div>
+
+    <div id="home-view-league">
     <div class="card">
       <div class="week-select">
         <label for="rankings-week-select">Week</label>
@@ -230,6 +245,38 @@
           <button data-pos="QB">QB</button>
         </div>
         <div id="prospectrankings-body"><div class="empty"><i class="ti ti-list-numbers"></i>No prospect data yet.</div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="home-view-team" style="display:none;">
+      <div class="card">
+        <h2 id="team-profile-name">Team profile</h2>
+        <div class="desc" id="team-profile-owner"></div>
+      </div>
+
+      <div class="card">
+        <h2>Current roster</h2>
+        <div class="desc">This season's rostered players</div>
+        <div id="team-roster-body"><div class="empty"><i class="ti ti-users"></i>No roster data yet.</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Season history</h2>
+        <div class="desc">Final finish, year over year</div>
+        <div id="team-seasons-body"><div class="empty"><i class="ti ti-history"></i>No season history yet.</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Head-to-head</h2>
+        <div class="desc">Career record against each rival</div>
+        <div id="team-h2h-body"><div class="empty"><i class="ti ti-swords"></i>No head-to-head data yet.</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Trade history</h2>
+        <div class="desc">Every trade this team has made</div>
+        <div id="team-trades-body"><div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div></div>
       </div>
     </div>
   </section>
@@ -507,8 +554,7 @@ function allSeasonsData(){
   return list;
 }
 
-function loadHeadToHead(){
-  const body = document.getElementById('h2h-body');
+function buildH2H(){
   const seasons = allSeasonsData();
   const h2h = {};
   const teamsSet = new Set();
@@ -533,7 +579,12 @@ function loadHeadToHead(){
       });
     });
   });
-  const teams = Array.from(teamsSet).sort();
+  return {teams: Array.from(teamsSet).sort(), h2h};
+}
+
+function loadHeadToHead(){
+  const body = document.getElementById('h2h-body');
+  const {teams, h2h} = buildH2H();
   if(!teams.length){ body.innerHTML = '<div class="empty"><i class="ti ti-swords"></i>No head-to-head data yet.</div>'; return; }
   let html = '<div class="table-scroll"><table class="matrix h2h"><thead><tr><th>Team</th>' + teams.map(t=>`<th title="${t}">${t.split(' ')[0]}</th>`).join('') + '</tr></thead><tbody>';
   teams.forEach(teamA=>{
@@ -559,12 +610,10 @@ function populateTradeYears(){
   sel.value = (prev && (prev==='all' || years.includes(prev))) ? prev : 'all';
 }
 
-function loadTradeLog(yearFilter){
-  const body = document.getElementById('trade-log-body');
+function buildTradeRows(){
   const seasons = allSeasonsData();
   const rows = [];
   seasons.forEach(s=>{
-    if(yearFilter && yearFilter!=='all' && String(s.season)!==String(yearFilter)) return;
     const rosterOwner = {}; (s.rosters||[]).forEach(r=>rosterOwner[r.roster_id]=r.owner_id);
     Object.keys(s.transactions||{}).forEach(week=>{
       (s.transactions[week]||[]).forEach(t=>{
@@ -573,8 +622,15 @@ function loadTradeLog(yearFilter){
       });
     });
   });
-  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div>'; return; }
   rows.sort((a,b)=> String(b.season).localeCompare(String(a.season)) || b.week-a.week);
+  return rows;
+}
+
+function loadTradeLog(yearFilter){
+  const body = document.getElementById('trade-log-body');
+  let rows = buildTradeRows();
+  if(yearFilter && yearFilter!=='all'){ rows = rows.filter(r=>String(r.season)===String(yearFilter)); }
+  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div>'; return; }
   body.innerHTML = rows.map(r=>{
     const t = r.tx;
     const teams = (t.roster_ids||[]).map(rid=>teamNameForOwnerId(r.rosterOwner[rid]));
@@ -623,6 +679,100 @@ function loadDraftResults(year){
     html += '</div>';
   });
   body.innerHTML = html;
+}
+
+function ownerIdForTeamName(teamName){
+  const map = DATA.team_name_map || {};
+  return Object.keys(map).find(uid=>map[uid]===teamName);
+}
+
+function populateHomeSelect(){
+  const sel = document.getElementById('home-select');
+  const prev = sel.value;
+  const teams = Object.values(DATA.team_name_map || {}).sort();
+  sel.innerHTML = '<option value="league">League</option>' + teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const allValues = ['league', ...teams];
+  sel.value = allValues.includes(prev) ? prev : 'league';
+  showHomeView(sel.value);
+}
+
+function showHomeView(value){
+  const leagueEl = document.getElementById('home-view-league');
+  const teamEl = document.getElementById('home-view-team');
+  if(value === 'league'){
+    leagueEl.style.display = '';
+    teamEl.style.display = 'none';
+  } else {
+    leagueEl.style.display = 'none';
+    teamEl.style.display = '';
+    loadTeamProfile(value);
+  }
+}
+
+function loadTeamProfile(teamName){
+  document.getElementById('team-profile-name').textContent = teamName || 'Team profile';
+  const ownerId = ownerIdForTeamName(teamName);
+  const u = ownerId ? userMap()[ownerId] : null;
+  document.getElementById('team-profile-owner').textContent = u ? teamLabel(u).owner : '';
+
+  // Current roster
+  const rosterBody = document.getElementById('team-roster-body');
+  const roster = (DATA.rosters || []).find(r=>r.owner_id === ownerId);
+  if(!roster || !roster.players || !roster.players.length){
+    rosterBody.innerHTML = '<div class="empty"><i class="ti ti-users"></i>No roster data yet.</div>';
+  } else {
+    rosterBody.innerHTML = '<div class="roster-grid">' + roster.players.map(pid=>{
+      const p = DATA.players && DATA.players[pid];
+      const posTag = p && p.position ? `<span class="pos">${p.position}</span>` : '';
+      return `<div class="roster-row"><span>${pname(pid)}</span>${posTag}</div>`;
+    }).join('') + '</div>';
+  }
+
+  // Season history
+  const seasonsBody = document.getElementById('team-seasons-body');
+  const seasonRows = (DATA.standings_by_year || []).map(s=>{
+    const entry = (s.standings || []).find(x=>x.team===teamName);
+    return entry ? {season: s.season, rank: entry.rank, record: entry.record} : null;
+  }).filter(Boolean).sort((a,b)=> String(b.season).localeCompare(String(a.season)));
+  if(!seasonRows.length){
+    seasonsBody.innerHTML = '<div class="empty"><i class="ti ti-history"></i>No season history yet.</div>';
+  } else {
+    seasonsBody.innerHTML = seasonRows.map(r=>{
+      const champ = (DATA.champions || []).find(c=>String(c.season)===String(r.season) && c.champion===teamName);
+      return `<div class="season-hist-row"><div class="season-hist-year">${r.season}</div><div style="flex:1;">Finished #${r.rank}${r.record ? ' &middot; '+r.record : ''}</div>${champ ? '<i class="ti ti-trophy" style="color:var(--gold);"></i>' : ''}</div>`;
+    }).join('');
+  }
+
+  // Head-to-head
+  const h2hBody = document.getElementById('team-h2h-body');
+  const {h2h} = buildH2H();
+  const opponents = Object.keys(h2h[teamName] || {}).sort();
+  if(!opponents.length){
+    h2hBody.innerHTML = '<div class="empty"><i class="ti ti-swords"></i>No head-to-head data yet.</div>';
+  } else {
+    h2hBody.innerHTML = opponents.map(opp=>{
+      const rec = h2h[teamName][opp];
+      return `<div class="season-hist-row"><div style="flex:1;">${opp}</div><div class="h2h-record">${rec.w}-${rec.l}</div></div>`;
+    }).join('');
+  }
+
+  // Trades
+  const tradesBody = document.getElementById('team-trades-body');
+  const tradeRows = buildTradeRows().filter(r=> (r.tx.roster_ids||[]).some(rid=> teamNameForOwnerId(r.rosterOwner[rid])===teamName));
+  if(!tradeRows.length){
+    tradesBody.innerHTML = '<div class="empty"><i class="ti ti-arrows-exchange"></i>No trades recorded yet.</div>';
+  } else {
+    tradesBody.innerHTML = tradeRows.map(r=>{
+      const t = r.tx;
+      const teams = (t.roster_ids||[]).map(rid=>teamNameForOwnerId(r.rosterOwner[rid]));
+      return `
+        <div class="trade-row">
+          <div class="trade-meta">${r.season} &middot; week ${r.week}</div>
+          <div class="trade-teams">${teams.join(' \u2194 ')}</div>
+        </div>
+      `;
+    }).join('');
+  }
 }
 
 let prospectPosFilter = 'all';
@@ -1048,6 +1198,7 @@ document.getElementById('playoff-year-select').addEventListener('change', e=>loa
 document.getElementById('rankings-week-select').addEventListener('change', e=>loadRankingsForWeek(e.target.value));
 document.getElementById('trade-year-select').addEventListener('change', e=>loadTradeLog(e.target.value));
 document.getElementById('draft-year-select').addEventListener('change', e=>loadDraftResults(e.target.value));
+document.getElementById('home-select').addEventListener('change', e=>showHomeView(e.target.value));
 
 async function refreshAll(){
   await loadData();
@@ -1070,6 +1221,7 @@ async function refreshAll(){
   loadTradeLog(document.getElementById('trade-year-select').value);
   populateDraftYears();
   loadDraftResults(document.getElementById('draft-year-select').value);
+  populateHomeSelect();
   loadProspectRankings();
 }
 refreshAll();
