@@ -13,7 +13,7 @@ from urllib.error import HTTPError
 
 LEAGUE_ID = "1310099274612080640"
 BASE = f"https://api.sleeper.app/v1/league/{LEAGUE_ID}"
-DATA_PATH = Path(__file__).resolve().parent.parent / "data.json"
+DATA_PATH = Path(__file__).resolve().parent.parent / "live_data.json"
 
 
 def get_json(url):
@@ -98,4 +98,5 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
     main()
