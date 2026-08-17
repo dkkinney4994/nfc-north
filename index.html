@@ -659,13 +659,13 @@ function loadProspectRankings(){
   if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-list-numbers"></i>No prospect data yet.</div>'; return; }
   if(prospectPosFilter !== 'all'){ rows = rows.filter(r=>r.pos === prospectPosFilter); }
   rows = [...rows].sort((a,b)=> (a.big_board_rank||999) - (b.big_board_rank||999));
-  body.innerHTML = rows.map(r=>`
+  body.innerHTML = rows.map((r,i)=>`
     <div class="prospect-row-detailed">
       <div class="top-line">
-        <div class="prospect-pick">${r.big_board_rank}</div>
+        <div class="prospect-pick">${i+1}</div>
         <div class="prospect-info">
           <div class="name">${r.player}</div>
-          <div class="sub">${r.college}</div>
+          <div class="sub">${r.college} &middot; Big Board #${r.big_board_rank}</div>
         </div>
         <div class="prospect-pos">${r.pos}</div>
       </div>
