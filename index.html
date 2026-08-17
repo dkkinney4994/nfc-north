@@ -151,6 +151,16 @@
   .draft-pick-row:last-child{border-bottom:none;}
   .draft-pick-num{font-family:ui-monospace,'SF Mono',monospace; color:var(--gold-dim); width:28px; font-weight:700;}
   .draft-pick-team{color:var(--ink-dim); font-size:11px;}
+  .mock-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .mock-row:last-child{border-bottom:none;}
+  .mock-num{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; font-size:18px; width:26px; color:var(--gold-dim);}
+  .mock-row.provisional .mock-num{color:var(--ink-dim);}
+  .mock-team{flex:1;}
+  .mock-team .name{font-weight:700; font-size:14px;}
+  .mock-team .tag{font-size:11px; color:var(--ink-dim);}
+  .mock-badge{font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; flex-shrink:0;}
+  .mock-badge.locked{background:rgba(57,255,142,0.14); color:var(--gold);}
+  .mock-badge.provisional{background:rgba(255,255,255,0.06); color:var(--ink-dim);}
 </style>
 </head>
 <body>
@@ -178,6 +188,11 @@
       <h2>Power rankings</h2>
       <div class="desc">Ranked by total points scored · record shown alongside</div>
       <div id="rankings-body"><div class="empty"><i class="ti ti-trophy"></i>No roster data yet. Open "Update data" below and paste it in.</div></div>
+    </div>
+    <div class="card">
+      <h2>Mock draft order</h2>
+      <div class="desc">Picks 1&ndash;4 by MaxPF, lowest first. Picks 5&ndash;8 are provisional until the playoffs decide them.</div>
+      <div id="mockdraft-body"><div class="empty"><i class="ti ti-list-numbers"></i>Not enough data yet to project the draft order.</div></div>
     </div>
   </section>
 
@@ -373,7 +388,7 @@
     <h2>Data source</h2>
     <div class="desc" style="margin-bottom:0;">
       Live scores, rosters, and transactions refresh automatically from Sleeper via a scheduled GitHub Action.
-      History, rules, and rankings are edited directly in <code>data.json</code> in the repo.
+      History, rules, and rankings are edited directly in <code>manual_data.json</code> in the repo.
     </div>
   </div>
 </div>
@@ -406,12 +421,18 @@ document.querySelectorAll('.subnav button').forEach(btn=>{
 });
 
 async function loadData(){
+  const fallback = {users:[],rosters:[],players:{},matchups:{},transactions:{},alltime:[],champions:[],weekly_highs:[],player_highs:[],standings_by_year:[],playoffs:[],preseason:[],house_rules:[],team_name_map:{},seasons_history:{},current_draft:{picks:[]},maxpf:{}};
   try{
-    const res = await fetch('data.json?t=' + Date.now());
-    DATA = await res.json();
+    const [manualRes, liveRes] = await Promise.all([
+      fetch('manual_data.json?t=' + Date.now()),
+      fetch('live_data.json?t=' + Date.now())
+    ]);
+    const manual = await manualRes.json();
+    const live = await liveRes.json();
+    DATA = Object.assign({}, fallback, manual, live);
   }catch(e){
-    DATA = {users:[],rosters:[],players:{},matchups:{},transactions:{},alltime:[],champions:[],weekly_highs:[],player_highs:[],standings_by_year:[],playoffs:[],preseason:[],house_rules:[]};
-    document.getElementById('wrap-error') || document.querySelector('.wrap').insertAdjacentHTML('afterbegin', '<div class="empty" id="wrap-error" style="padding:20px;">Could not load data.json &mdash; check it exists at the same path as this page.</div>');
+    DATA = fallback;
+    document.getElementById('wrap-error') || document.querySelector('.wrap').insertAdjacentHTML('afterbegin', '<div class="empty" id="wrap-error" style="padding:20px;">Could not load manual_data.json / live_data.json &mdash; check both exist at the same path as this page.</div>');
   }
 }
 
@@ -618,6 +639,64 @@ function loadRankings(){
       </div>
     </div>
   `).join('');
+}
+
+function loadMockDraft(){
+  const body = document.getElementById('mockdraft-body');
+  const rosters = DATA.rosters || [];
+  if(rosters.length < 8){ body.innerHTML = '<div class="empty"><i class="ti ti-list-numbers"></i>Not enough data yet to project the draft order.</div>'; return; }
+  const uMap = userMap();
+  const teams = rosters.map(r=>{
+    const label = teamLabel(uMap[r.owner_id]).name;
+    const w = (r.settings && r.settings.wins) || 0;
+    const l = (r.settings && r.settings.losses) || 0;
+    const t = (r.settings && r.settings.ties) || 0;
+    const games = w+l+t;
+    const winPct = games ? (w + t*0.5)/games : 0;
+    const fpts = ((r.settings && r.settings.fpts) || 0) + ((r.settings && r.settings.fpts_decimal || 0)/100);
+    const maxpf = (DATA.maxpf && DATA.maxpf[label] != null) ? Number(DATA.maxpf[label]) : null;
+    return {label, w, l, t, winPct, fpts, maxpf};
+  });
+  const sorted = [...teams].sort((a,b)=> b.winPct - a.winPct || b.fpts - a.fpts);
+  const bottom4 = sorted.slice(4);
+  const top4 = sorted.slice(0, 4);
+
+  const bottomSorted = [...bottom4].sort((a,b)=>{
+    const am = a.maxpf == null ? Infinity : a.maxpf;
+    const bm = b.maxpf == null ? Infinity : b.maxpf;
+    if(am !== bm) return am - bm;
+    if(a.winPct !== b.winPct) return a.winPct - b.winPct;
+    return a.fpts - b.fpts;
+  });
+
+  let html = '';
+  bottomSorted.forEach((team, i)=>{
+    html += `
+      <div class="mock-row">
+        <div class="mock-num">${i+1}</div>
+        <div class="mock-team">
+          <div class="name">${team.label}</div>
+          <div class="tag">${team.w}-${team.l}${team.t?('-'+team.t):''} &middot; MaxPF ${team.maxpf!=null ? team.maxpf.toFixed(1) : '&mdash;'}</div>
+        </div>
+        <div class="mock-badge locked">Set</div>
+      </div>
+    `;
+  });
+  html += '<div style="margin:14px 0 4px; font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.08em; font-weight:700;">Picks 5&ndash;8 &middot; order set by playoffs</div>';
+  top4.forEach((team, i)=>{
+    const seed = i+1;
+    html += `
+      <div class="mock-row provisional">
+        <div class="mock-num">S${seed}</div>
+        <div class="mock-team">
+          <div class="name">${team.label}</div>
+          <div class="tag">${team.w}-${team.l}${team.t?('-'+team.t):''}</div>
+        </div>
+        <div class="mock-badge provisional">TBD</div>
+      </div>
+    `;
+  });
+  body.innerHTML = html;
 }
 
 function availableWeeks(){
@@ -841,6 +920,7 @@ async function refreshAll(){
   loadHouseRules();
   loadPreseason();
   loadRankings();
+  loadMockDraft();
   populateWeekSelects();
   loadWaivers(document.getElementById('waiver-week-select').value);
   loadMatchups(document.getElementById('matchup-week-select').value);
