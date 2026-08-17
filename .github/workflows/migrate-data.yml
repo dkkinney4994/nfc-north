@@ -1,0 +1,30 @@
+name: Migrate to split data files
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run migration script
+        run: python scripts/migrate_split_data.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "league-data-bot"
+          git config user.email "actions@github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Split data.json into manual_data.json and live_data.json"
+          git push
