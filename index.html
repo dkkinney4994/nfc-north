@@ -151,6 +151,22 @@
   .draft-pick-row:last-child{border-bottom:none;}
   .draft-pick-num{font-family:ui-monospace,'SF Mono',monospace; color:var(--gold-dim); width:28px; font-weight:700;}
   .draft-pick-team{color:var(--ink-dim); font-size:11px;}
+  .prospect-row{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line);}
+  .prospect-row:last-child{border-bottom:none;}
+  .prospect-pick{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; color:var(--gold-dim); width:26px;}
+  .prospect-info{flex:1;}
+  .prospect-info .name{font-weight:700; font-size:14px;}
+  .prospect-info .sub{font-size:11px; color:var(--ink-dim);}
+  .prospect-pos{font-family:ui-monospace,'SF Mono',monospace; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:5px; background:rgba(57,255,142,0.12); color:var(--gold); flex-shrink:0;}
+  .pos-filter{display:flex; gap:4px; margin-bottom:14px; flex-wrap:wrap;}
+  .pos-filter button{background:var(--field2); color:var(--chalk-dim); border:1px solid var(--line); padding:6px 13px; font-size:11.5px; font-weight:600; border-radius:8px; cursor:pointer;}
+  .pos-filter button.active{background:var(--gold); color:#04170c; border-color:var(--gold);}
+  .prospect-row-detailed{padding:11px 0; border-bottom:1px solid var(--line);}
+  .prospect-row-detailed:last-child{border-bottom:none;}
+  .prospect-row-detailed .top-line{display:flex; align-items:center; gap:10px;}
+  .prospect-stats{display:flex; gap:14px; margin-top:6px; flex-wrap:wrap; font-family:ui-monospace,'SF Mono',monospace; font-size:11px; color:var(--ink-dim);}
+  .prospect-stats .stat-val{color:var(--ink); font-weight:700;}
+  .mock-team-tag{font-family:ui-monospace,'SF Mono',monospace; font-size:10.5px; font-weight:700; color:var(--gold-dim); width:34px; flex-shrink:0;}
   .mock-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
   .mock-row:last-child{border-bottom:none;}
   .mock-num{font-family:ui-monospace,'SF Mono',monospace; font-weight:700; font-size:18px; width:26px; color:var(--gold-dim);}
@@ -188,10 +204,33 @@
       <div class="desc">Standings as of the selected week &middot; record first, points as tiebreaker</div>
       <div id="rankings-week-body"><div class="empty"><i class="ti ti-trophy"></i>No data yet.</div></div>
     </div>
-    <div class="card">
-      <h2>Mock draft order</h2>
-      <div class="desc">Picks 1&ndash;4 by MaxPF, lowest first. Picks 5&ndash;8 are provisional until the playoffs decide them.</div>
-      <div id="mockdraft-body"><div class="empty"><i class="ti ti-list-numbers"></i>Not enough data yet to project the draft order.</div></div>
+
+    <div class="subnav" data-group="draftboard">
+      <button data-subview="teamorder" class="active">Team draft order</button>
+      <button data-subview="rankings">Prospect rankings</button>
+    </div>
+
+    <div class="subview active" data-group="draftboard" id="draftboard-subview-teamorder">
+      <div class="card">
+        <h2>Mock draft order</h2>
+        <div class="desc">Picks 1&ndash;4 by MaxPF, lowest first. Picks 5&ndash;8 are provisional until the playoffs decide them.</div>
+        <div id="mockdraft-body"><div class="empty"><i class="ti ti-list-numbers"></i>Not enough data yet to project the draft order.</div></div>
+      </div>
+    </div>
+
+    <div class="subview" data-group="draftboard" id="draftboard-subview-rankings">
+      <div class="card">
+        <h2>Prospect rankings</h2>
+        <div class="desc">Top 101 overall, skill positions only &mdash; via Tankathon's Big Board</div>
+        <div class="pos-filter">
+          <button data-pos="all" class="active">All</button>
+          <button data-pos="WR">WR</button>
+          <button data-pos="RB">RB</button>
+          <button data-pos="TE">TE</button>
+          <button data-pos="QB">QB</button>
+        </div>
+        <div id="prospectrankings-body"><div class="empty"><i class="ti ti-list-numbers"></i>No prospect data yet.</div></div>
+      </div>
     </div>
   </section>
 
@@ -586,6 +625,66 @@ function loadDraftResults(year){
   body.innerHTML = html;
 }
 
+let prospectPosFilter = 'all';
+
+function statLine(r){
+  const s = r.stats || {};
+  if(r.pos === 'QB'){
+    return [
+      ['PASS YDS', s.pass_yds],
+      ['TD', s.pass_td],
+      ['INT', s.int],
+      ['RATING', s.rating]
+    ];
+  }
+  if(r.pos === 'RB'){
+    return [
+      ['RUSH YDS', s.rush_yds],
+      ['TD', s.rush_td],
+      ['AVG', s.avg],
+      ['REC YDS', s.rec_yds]
+    ];
+  }
+  return [
+    ['REC', s.rec],
+    ['REC YDS', s.rec_yds],
+    ['TD', s.rec_td],
+    ['AVG', s.avg]
+  ];
+}
+
+function loadProspectRankings(){
+  const body = document.getElementById('prospectrankings-body');
+  let rows = DATA.prospect_rankings_2027 || [];
+  if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-list-numbers"></i>No prospect data yet.</div>'; return; }
+  if(prospectPosFilter !== 'all'){ rows = rows.filter(r=>r.pos === prospectPosFilter); }
+  rows = [...rows].sort((a,b)=> (a.big_board_rank||999) - (b.big_board_rank||999));
+  body.innerHTML = rows.map(r=>`
+    <div class="prospect-row-detailed">
+      <div class="top-line">
+        <div class="prospect-pick">${r.big_board_rank}</div>
+        <div class="prospect-info">
+          <div class="name">${r.player}</div>
+          <div class="sub">${r.college}</div>
+        </div>
+        <div class="prospect-pos">${r.pos}</div>
+      </div>
+      <div class="prospect-stats">
+        ${statLine(r).map(([label,val])=> val!=null ? `<span>${label} <span class="stat-val">${val}</span></span>` : '').join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.pos-filter button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.pos-filter button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    prospectPosFilter = btn.dataset.pos;
+    loadProspectRankings();
+  });
+});
+
 function populateRankingsWeeks(){
   const sel = document.getElementById('rankings-week-select');
   const prev = sel.value;
@@ -675,8 +774,8 @@ function loadRankingsForWeek(selection){
   `).join('');
 }
 
-function loadMockDraft(){
-  const body = document.getElementById('mockdraft-body');
+function loadMockDraft(targetId){
+  const body = document.getElementById(targetId || 'mockdraft-body');
   const rosters = DATA.rosters || [];
   if(rosters.length < 8){ body.innerHTML = '<div class="empty"><i class="ti ti-list-numbers"></i>Not enough data yet to project the draft order.</div>'; return; }
   const uMap = userMap();
@@ -955,7 +1054,7 @@ async function refreshAll(){
   loadHouseRules();
   populateRankingsWeeks();
   loadRankingsForWeek(document.getElementById('rankings-week-select').value);
-  loadMockDraft();
+  loadMockDraft('mockdraft-body');
   populateWeekSelects();
   loadWaivers(document.getElementById('waiver-week-select').value);
   loadMatchups(document.getElementById('matchup-week-select').value);
@@ -971,6 +1070,7 @@ async function refreshAll(){
   loadTradeLog(document.getElementById('trade-year-select').value);
   populateDraftYears();
   loadDraftResults(document.getElementById('draft-year-select').value);
+  loadProspectRankings();
 }
 refreshAll();
 </script>
