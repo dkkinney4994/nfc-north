@@ -11,7 +11,7 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 
 CURRENT_LEAGUE_ID = "1310099274612080640"
-DATA_PATH = Path(__file__).resolve().parent.parent / "data.json"
+DATA_PATH = Path(__file__).resolve().parent.parent / "live_data.json"
 
 
 def get_json(url):
