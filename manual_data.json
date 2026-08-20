@@ -401,4 +401,28 @@
   {"big_board_rank": 94, "player": "Sam Leavitt", "pos": "QB", "college": "LSU", "stats": {"pass_yds": 1628, "pass_td": 10, "int": 3, "rating": 129.2}},
   {"big_board_rank": 101, "player": "Isaac Brown", "pos": "RB", "college": "Louisville", "stats": {"rush_yds": 884, "rush_td": 7, "avg": 8.8, "rec_yds": 48}}
 ]
-}
+},
+"weekly_highs": [
+  {"team": "Biters Anonymous", "season": "2025", "week": 15, "score": 235.70},
+  {"team": "Chiran", "season": "2025", "week": 12, "score": 226.42},
+  {"team": "Biters Anonymous", "season": "2024", "week": 14, "score": 214.12},
+  {"team": "Biters Anonymous", "season": "2024", "week": 15, "score": 213.90},
+  {"team": "Biters Anonymous", "season": "2024", "week": 10, "score": 210.98},
+  {"team": "NatL", "season": "2023", "week": 8, "score": 208.76},
+  {"team": "Biters Anonymous", "season": "2023", "week": 12, "score": 207.00},
+  {"team": "NatL", "season": "2023", "week": 3, "score": 206.38},
+  {"team": "DougNotFunny", "season": "2024", "week": 8, "score": 202.62},
+  {"team": "Chiran", "season": "2025", "week": 16, "score": 201.88}
+],
+"player_highs": [
+  {"player": "J. Chase", "pos": "WR", "nfl_team": "CIN", "season": "2024", "week": 10, "score": 55.40, "team": "Biters Anonymous"},
+  {"player": "J. Gibbs", "pos": "RB", "nfl_team": "DET", "season": "2025", "week": 12, "score": 55.40, "team": "Chiran"},
+  {"player": "J. Chase", "pos": "WR", "nfl_team": "CIN", "season": "2023", "week": 5, "score": 52.20, "team": "Biters Anonymous"},
+  {"player": "J. Allen", "pos": "QB", "nfl_team": "BUF", "season": "2024", "week": 14, "score": 51.88, "team": "DougNotFunny"},
+  {"player": "A. Cooper", "pos": "WR", "nfl_team": "CLE", "season": "2023", "week": 16, "score": 51.50, "team": "Eliott's Diablos"},
+  {"player": "D. Achane", "pos": "RB", "nfl_team": "MIA", "season": "2023", "week": 3, "score": 51.30, "team": "DougNotFunny"},
+  {"player": "J. Taylor", "pos": "RB", "nfl_team": "IND", "season": "2025", "week": 10, "score": 49.60, "team": "DougNotFunny"},
+  {"player": "D. Moore", "pos": "WR", "nfl_team": "CHI", "season": "2023", "week": 5, "score": 49.00, "team": "Analytically the Champion"},
+  {"player": "C. McCaffrey", "pos": "RB", "nfl_team": "SF", "season": "2023", "week": 4, "score": 48.70, "team": "NatL"},
+  {"player": "P. Nacua", "pos": "WR", "nfl_team": "LAR", "season": "2025", "week": 16, "score": 46.50, "team": "Chiran"}
+]
