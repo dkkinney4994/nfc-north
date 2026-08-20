@@ -400,8 +400,7 @@
   {"big_board_rank": 93, "player": "Nyck Harbor", "pos": "WR", "college": "South Carolina", "stats": {"rec": 30, "rec_yds": 618, "rec_td": 6, "avg": 20.6}},
   {"big_board_rank": 94, "player": "Sam Leavitt", "pos": "QB", "college": "LSU", "stats": {"pass_yds": 1628, "pass_td": 10, "int": 3, "rating": 129.2}},
   {"big_board_rank": 101, "player": "Isaac Brown", "pos": "RB", "college": "Louisville", "stats": {"rush_yds": 884, "rush_td": 7, "avg": 8.8, "rec_yds": 48}}
-]
-},
+],
 "weekly_highs": [
   {"team": "Biters Anonymous", "season": "2025", "week": 15, "score": 235.70},
   {"team": "Chiran", "season": "2025", "week": 12, "score": 226.42},
@@ -425,4 +424,4 @@
   {"player": "D. Moore", "pos": "WR", "nfl_team": "CHI", "season": "2023", "week": 5, "score": 49.00, "team": "Analytically the Champion"},
   {"player": "C. McCaffrey", "pos": "RB", "nfl_team": "SF", "season": "2023", "week": 4, "score": 48.70, "team": "NatL"},
   {"player": "P. Nacua", "pos": "WR", "nfl_team": "LAR", "season": "2025", "week": 16, "score": 46.50, "team": "Chiran"}
-]
+]}
