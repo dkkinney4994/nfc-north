@@ -7,7 +7,7 @@
   "champions": [
     {
       "season": "2025",
-      "champion": "Chiran",
+      "champion": "Cea5e & De5i5t",
       "runner_up": "Biters Anonymous"
     },
     {
@@ -23,7 +23,7 @@
   ],
   "preseason": [
     {
-      "team": "Chiran",
+      "team": "Cea5e & De5i5t",
       "blurb": "2025 champion, best all-time win%"
     },
     {
@@ -57,7 +57,7 @@
   ],
   "alltime": [
     {
-      "team": "Chiran",
+      "team": "Cea5e & De5i5t",
       "wins": 27,
       "losses": 17,
       "points_for": 6576.58
@@ -135,7 +135,7 @@
           "record": "8-7"
         },
         {
-          "team": "Chiran",
+          "team": "Cea5e & De5i5t",
           "rank": 6,
           "record": "5-10"
         },
@@ -155,7 +155,7 @@
       "season": "2024",
       "standings": [
         {
-          "team": "Chiran",
+          "team": "Cea5e & De5i5t",
           "rank": 1,
           "record": "9-6"
         },
@@ -200,7 +200,7 @@
       "season": "2025",
       "standings": [
         {
-          "team": "Chiran",
+          "team": "Cea5e & De5i5t",
           "rank": 1,
           "record": "13-1"
         },
@@ -283,7 +283,7 @@
           "name": "Semifinals",
           "matchups": [
             {
-              "a": "Chiran",
+              "a": "Cea5e & De5i5t",
               "aScore": 176.52,
               "b": "Biters Anonymous",
               "bScore": 186.84
@@ -316,7 +316,7 @@
           "name": "Semifinals",
           "matchups": [
             {
-              "a": "Chiran",
+              "a": "Cea5e & De5i5t",
               "aScore": 169.52,
               "b": "Eliott's Diablos",
               "bScore": 147.16
@@ -333,7 +333,7 @@
           "name": "Championship",
           "matchups": [
             {
-              "a": "Chiran",
+              "a": "Cea5e & De5i5t",
               "aScore": 201.88,
               "b": "Biters Anonymous",
               "bScore": 177
@@ -348,7 +348,7 @@
     "839020272534265856": "Biters Anonymous",
     "1002390038023331840": "Eliott's Diablos",
     "1002399688844230656": "Strangler On The Loose",
-    "1002442005600903168": "Chiran",
+    "1002442005600903168": "Cea5e & De5i5t",
     "1003033386094567424": "NatL",
     "1003036470178942976": "Pizza Bagels",
     "1004417548693135360": "DougNotFunny"
@@ -358,7 +358,7 @@
     "Biters Anonymous": null,
     "Eliott's Diablos": null,
     "Strangler On The Loose": null,
-    "Chiran": null,
+    "Cea5e & De5i5t": null,
     "NatL": null,
     "Pizza Bagels": null,
     "DougNotFunny": null
@@ -403,7 +403,7 @@
 ],
 "weekly_highs": [
   {"team": "Biters Anonymous", "season": "2025", "week": 15, "score": 235.70},
-  {"team": "Chiran", "season": "2025", "week": 12, "score": 226.42},
+  {"team": "Cea5e & De5i5t", "season": "2025", "week": 12, "score": 226.42},
   {"team": "Biters Anonymous", "season": "2024", "week": 14, "score": 214.12},
   {"team": "Biters Anonymous", "season": "2024", "week": 15, "score": 213.90},
   {"team": "Biters Anonymous", "season": "2024", "week": 10, "score": 210.98},
@@ -411,11 +411,11 @@
   {"team": "Biters Anonymous", "season": "2023", "week": 12, "score": 207.00},
   {"team": "NatL", "season": "2023", "week": 3, "score": 206.38},
   {"team": "DougNotFunny", "season": "2024", "week": 8, "score": 202.62},
-  {"team": "Chiran", "season": "2025", "week": 16, "score": 201.88}
+  {"team": "Cea5e & De5i5t", "season": "2025", "week": 16, "score": 201.88}
 ],
 "player_highs": [
   {"player": "J. Chase", "pos": "WR", "nfl_team": "CIN", "season": "2024", "week": 10, "score": 55.40, "team": "Biters Anonymous"},
-  {"player": "J. Gibbs", "pos": "RB", "nfl_team": "DET", "season": "2025", "week": 12, "score": 55.40, "team": "Chiran"},
+  {"player": "J. Gibbs", "pos": "RB", "nfl_team": "DET", "season": "2025", "week": 12, "score": 55.40, "team": "Cea5e & De5i5t"},
   {"player": "J. Chase", "pos": "WR", "nfl_team": "CIN", "season": "2023", "week": 5, "score": 52.20, "team": "Biters Anonymous"},
   {"player": "J. Allen", "pos": "QB", "nfl_team": "BUF", "season": "2024", "week": 14, "score": 51.88, "team": "DougNotFunny"},
   {"player": "A. Cooper", "pos": "WR", "nfl_team": "CLE", "season": "2023", "week": 16, "score": 51.50, "team": "Eliott's Diablos"},
@@ -423,5 +423,5 @@
   {"player": "J. Taylor", "pos": "RB", "nfl_team": "IND", "season": "2025", "week": 10, "score": 49.60, "team": "DougNotFunny"},
   {"player": "D. Moore", "pos": "WR", "nfl_team": "CHI", "season": "2023", "week": 5, "score": 49.00, "team": "Analytically the Champion"},
   {"player": "C. McCaffrey", "pos": "RB", "nfl_team": "SF", "season": "2023", "week": 4, "score": 48.70, "team": "NatL"},
-  {"player": "P. Nacua", "pos": "WR", "nfl_team": "LAR", "season": "2025", "week": 16, "score": 46.50, "team": "Chiran"}
+  {"player": "P. Nacua", "pos": "WR", "nfl_team": "LAR", "season": "2025", "week": 16, "score": 46.50, "team": "Cea5e & De5i5t"}
 ]}
