@@ -211,12 +211,8 @@
 
     <div id="home-view-league">
     <div class="card">
-      <div class="week-select">
-        <label for="rankings-week-select">Week</label>
-        <select id="rankings-week-select"></select>
-      </div>
       <h2>Power rankings</h2>
-      <div class="desc">Standings as of the selected week &middot; record first, points as tiebreaker</div>
+      <div class="desc">Record first, points as tiebreaker &middot; rank movement vs. last week</div>
       <div id="rankings-week-body"><div class="empty"><i class="ti ti-trophy"></i>No data yet.</div></div>
     </div>
 
@@ -844,37 +840,8 @@ document.querySelectorAll('.pos-filter button').forEach(btn=>{
   });
 });
 
-function populateRankingsWeeks(){
-  const sel = document.getElementById('rankings-week-select');
-  const prev = sel.value;
-  const weeks = availableWeeks();
-  let opts = '<option value="preseason">Preseason</option>' + weeks.map(w=>`<option value="${w}">Week ${w}</option>`).join('');
-  sel.innerHTML = opts;
-  const allValues = ['preseason', ...weeks.map(String)];
-  sel.value = allValues.includes(prev) ? prev : (weeks.length ? String(weeks[weeks.length-1]) : 'preseason');
-}
-
-function loadRankingsForWeek(selection){
-  const body = document.getElementById('rankings-week-body');
-
-  if(!selection || selection === 'preseason'){
-    const rows = DATA.preseason || [];
-    if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No preseason rankings set yet.</div>'; return; }
-    body.innerHTML = rows.map((r,i)=>`
-      <div class="rank-row">
-        <div class="rank-num ${i===0?'top':''}">${i+1}</div>
-        <div class="rank-team">
-          <div class="name">${r.team}</div>
-          ${r.blurb ? `<div class="blurb">${r.blurb}</div>` : ''}
-        </div>
-      </div>
-    `).join('');
-    return;
-  }
-
-  const week = Number(selection);
+function computeStandingsThroughWeek(week){
   const rosters = DATA.rosters || [];
-  if(!rosters.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No roster data yet.</div>'; return; }
   const uMap = userMap();
   const stats = {};
   rosters.forEach(r=>{ stats[r.roster_id] = {w:0,l:0,t:0,fpts:0,fptsAgainst:0}; });
@@ -898,10 +865,10 @@ function loadRankingsForWeek(selection){
     });
   }
 
-  const rows = rosters.map(r=>{
+  return rosters.map(r=>{
     const label = teamLabel(uMap[r.owner_id]);
     const s = stats[r.roster_id];
-    return {label, ...s};
+    return {rosterId: r.roster_id, label, ...s};
   }).sort((a,b)=>{
     const aGames = a.w + a.l + a.t;
     const bGames = b.w + b.l + b.t;
@@ -910,27 +877,67 @@ function loadRankingsForWeek(selection){
     if(bWinPct !== aWinPct) return bWinPct - aWinPct;
     return b.fpts - a.fpts;
   });
+}
 
-  if(!rows.some(r=>r.w+r.l+r.t > 0)){
-    body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No games played through this week yet.</div>';
+function loadRankingsCurrent(){
+  const body = document.getElementById('rankings-week-body');
+  const weeks = availableWeeks();
+
+  if(!weeks.length){
+    const rows = DATA.preseason || [];
+    if(!rows.length){ body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No preseason rankings set yet.</div>'; return; }
+    body.innerHTML = rows.map((r,i)=>`
+      <div class="rank-row">
+        <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+        <div class="rank-team">
+          <div class="name">${r.team}</div>
+          ${r.blurb ? `<div class="blurb">${r.blurb}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
     return;
   }
 
+  const latestWeek = weeks[weeks.length-1];
+  const prevWeek = weeks.length > 1 ? weeks[weeks.length-2] : null;
+  const rows = computeStandingsThroughWeek(latestWeek);
+
+  if(!rows.some(r=>r.w+r.l+r.t > 0)){
+    body.innerHTML = '<div class="empty"><i class="ti ti-trophy"></i>No games played yet.</div>';
+    return;
+  }
+
+  const priorRankByRoster = {};
+  if(prevWeek != null){
+    computeStandingsThroughWeek(prevWeek).forEach((r,i)=>{ priorRankByRoster[r.rosterId] = i+1; });
+  }
+
   const maxPts = Math.max(...rows.map(r=>r.fpts), 1);
-  body.innerHTML = rows.map((r,i)=>`
+  body.innerHTML = rows.map((r,i)=>{
+    const rank = i+1;
+    const priorRank = priorRankByRoster[r.rosterId];
+    let moveHtml = '<span style="color:var(--ink-dim);">&mdash;</span>';
+    if(priorRank != null){
+      if(priorRank > rank) moveHtml = `<span style="color:var(--gold);">&#9650;${priorRank-rank}</span>`;
+      else if(priorRank < rank) moveHtml = `<span style="color:var(--red);">&#9660;${rank-priorRank}</span>`;
+    }
+    const maxpfVal = DATA.maxpf && DATA.maxpf[r.label.name] != null ? Number(DATA.maxpf[r.label.name]).toFixed(1) : '&mdash;';
+    return `
     <div class="rank-row">
-      <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+      <div class="rank-num ${rank===1?'top':''}">${rank}</div>
+      <div style="width:36px; text-align:center; font-family:ui-monospace,'SF Mono',monospace; font-size:11px;">${moveHtml}</div>
       <div class="rank-team">
         <div class="name">${r.label.name}</div>
-        <div class="owner">${r.label.owner}</div>
+        <div class="owner">${r.label.owner} &middot; ${r.w}-${r.l}${r.t?('-'+r.t):''}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${(r.fpts/maxPts*100).toFixed(0)}%"></div></div>
       </div>
       <div class="rank-stats">
-        <div class="pts">${r.w}-${r.l}${r.t?('-'+r.t):''}</div>
-        <div>${r.fpts.toFixed(1)} pts · vs ${r.fptsAgainst.toFixed(1)}</div>
+        <div class="pts">${r.fpts.toFixed(1)}</div>
+        <div>PA ${r.fptsAgainst.toFixed(1)} &middot; MaxPF ${maxpfVal}</div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function loadMockDraft(targetId){
@@ -1212,7 +1219,6 @@ function loadHouseRules(){
 document.getElementById('waiver-week-select').addEventListener('change', e=>loadWaivers(e.target.value));
 document.getElementById('matchup-week-select').addEventListener('change', e=>loadMatchups(e.target.value));
 document.getElementById('playoff-year-select').addEventListener('change', e=>loadPlayoffBracket(e.target.value));
-document.getElementById('rankings-week-select').addEventListener('change', e=>loadRankingsForWeek(e.target.value));
 document.getElementById('trade-year-select').addEventListener('change', e=>loadTradeLog(e.target.value));
 document.getElementById('draft-year-select').addEventListener('change', e=>loadDraftResults(e.target.value));
 document.getElementById('home-select').addEventListener('change', e=>showHomeView(e.target.value));
@@ -1220,8 +1226,7 @@ document.getElementById('home-select').addEventListener('change', e=>showHomeVie
 async function refreshAll(){
   await loadData();
   loadHouseRules();
-  populateRankingsWeeks();
-  loadRankingsForWeek(document.getElementById('rankings-week-select').value);
+  loadRankingsCurrent();
   loadMockDraft('mockdraft-body');
   populateWeekSelects();
   loadWaivers(document.getElementById('waiver-week-select').value);
