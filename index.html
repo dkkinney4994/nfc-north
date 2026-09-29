@@ -868,7 +868,7 @@ function computeStandingsThroughWeek(week){
   return rosters.map(r=>{
     const label = teamLabel(uMap[r.owner_id]);
     const s = stats[r.roster_id];
-    return {rosterId: r.roster_id, label, ...s};
+    return {rosterId: r.roster_id, ownerId: r.owner_id, label, ...s};
   }).sort((a,b)=>{
     const aGames = a.w + a.l + a.t;
     const bGames = b.w + b.l + b.t;
@@ -921,7 +921,7 @@ function loadRankingsCurrent(){
       if(priorRank > rank) moveHtml = `<span style="color:var(--gold);">&#9650;${priorRank-rank}</span>`;
       else if(priorRank < rank) moveHtml = `<span style="color:var(--red);">&#9660;${rank-priorRank}</span>`;
     }
-    const maxpfVal = DATA.maxpf && DATA.maxpf[r.label.name] != null ? Number(DATA.maxpf[r.label.name]).toFixed(1) : '&mdash;';
+    const maxpfVal = DATA.maxpf && DATA.maxpf[r.ownerId] != null ? Number(DATA.maxpf[r.ownerId]).toFixed(1) : '&mdash;';
     return `
     <div class="rank-row">
       <div class="rank-num ${rank===1?'top':''}">${rank}</div>
@@ -953,7 +953,7 @@ function loadMockDraft(targetId){
     const games = w+l+t;
     const winPct = games ? (w + t*0.5)/games : 0;
     const fpts = ((r.settings && r.settings.fpts) || 0) + ((r.settings && r.settings.fpts_decimal || 0)/100);
-    const maxpf = (DATA.maxpf && DATA.maxpf[label] != null) ? Number(DATA.maxpf[label]) : null;
+    const maxpf = (DATA.maxpf && DATA.maxpf[r.owner_id] != null) ? Number(DATA.maxpf[r.owner_id]) : null;
     return {label, w, l, t, winPct, fpts, maxpf};
   });
   const sorted = [...teams].sort((a,b)=> b.winPct - a.winPct || b.fpts - a.fpts);
