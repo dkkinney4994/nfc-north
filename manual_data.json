@@ -353,16 +353,16 @@
     "1003036470178942976": "Pizza Bagels",
     "1004417548693135360": "DougNotFunny"
   },
-  "maxpf": {
-    "Analytically the Champion": null,
-    "Biters Anonymous": null,
-    "Eliott's Diablos": null,
-    "Strangler On The Loose": null,
-    "Cea5e & De5i5t": null,
-    "NatL": null,
-    "Pizza Bagels": null,
-    "DougNotFunny": null
-  },
+"maxpf": {
+  "339147671077916672": null,
+  "839020272534265856": null,
+  "1002390038023331840": null,
+  "1002399688844230656": null,
+  "1002442005600903168": null,
+  "1003033386094567424": null,
+  "1003036470178942976": null,
+  "1004417548693135360": null
+},
   "prospect_rankings_2027": [
   {"big_board_rank": 1, "player": "Jeremiah Smith", "pos": "WR", "college": "Ohio State", "stats": {"rec": 33, "rec_yds": 617, "rec_td": 7, "avg": 18.7}},
   {"big_board_rank": 5, "player": "Cam Coleman", "pos": "WR", "college": "Texas", "stats": {"rec": 12, "rec_yds": 208, "rec_td": 4, "avg": 17.3}},
