@@ -417,6 +417,7 @@
   {"big_board_rank": 159, "player": "DJ Lagway", "pos": "QB", "college": "Baylor", "stats": {"pass_yds": 860, "pass_td": 8, "int": 2, "rating": 124.5}}
 ],
 "weekly_highs": [
+  {"team": "Cea5e & De5i5t", "season": "2026", "week": 5, "score": 256.60}
   {"team": "Biters Anonymous", "season": "2025", "week": 15, "score": 235.70},
   {"team": "Cea5e & De5i5t", "season": "2025", "week": 12, "score": 226.42},
   {"team": "Biters Anonymous", "season": "2024", "week": 14, "score": 214.12},
@@ -426,7 +427,6 @@
   {"team": "Biters Anonymous", "season": "2023", "week": 12, "score": 207.00},
   {"team": "NatL", "season": "2023", "week": 3, "score": 206.38},
   {"team": "DougNotFunny", "season": "2024", "week": 8, "score": 202.62},
-  {"team": "Cea5e & De5i5t", "season": "2025", "week": 16, "score": 201.88}
 ],
 "player_highs": [
   {"player": "J. Chase", "pos": "WR", "nfl_team": "CIN", "season": "2024", "week": 10, "score": 55.40, "team": "Biters Anonymous"},
